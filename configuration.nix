@@ -101,7 +101,6 @@
 
   hardware.opengl = {
      enable = true;
-     driSupport = true;
      driSupport32Bit = true;
    };
 
@@ -110,7 +109,6 @@
   services.printing.enable = true;
 
   # Enable sound with pipewire.
-  sound.enable = true;
   hardware.pulseaudio.enable = false;
   security.polkit.enable = true;
   security.rtkit.enable = true;
@@ -185,9 +183,14 @@
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
+  environment.sessionVariables = {
+      NIXOS_OZONE_WL = "1";
+      XDG_SESSION_TYPE = "wayland";
+    };
   environment.systemPackages = with pkgs; [
     neovim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     vim
+    niri
     man-pages
     man-pages-posix
     pcscliteWithPolkit.out
@@ -215,12 +218,45 @@ xdg = {
   portal = {
     enable = true;
     wlr.enable = true;
-    gtkUsePortal = true;
     extraPortals = with pkgs; [
       xdg-desktop-portal-gtk
+      xdg-desktop-portal-wlr
     ];
+  config = {
+      common.default = "*";
+      sway = {
+        default = lib.mkForce "wlr";
+        "org.freedesktop.impl.portal.Screenshot" = "wlr";
+        "org.freedesktop.impl.portal.Screencast" = "wlr";
+      };
+      niri = {
+        default = "wlr";
+        "org.freedesktop.impl.portal.Screenshot" = "wlr";
+        "org.freedesktop.impl.portal.Screencast" = "wlr";
+      };
+    };
+    xdgOpenUsePortal = true;
   };
 };
+
+environment.etc = {
+  "wayland-sessions/sway.desktop".text = ''
+    [Desktop Entry]
+    Name=Sway
+    Comment=An i3-compatible Wayland compositor
+    Exec=sway
+    Type=Application
+  '';
+  "wayland-sessions/niri.desktop".text = ''
+    [Desktop Entry]
+    Name=niri
+    Comment=A scrollable-tiling Wayland compositor
+    Exec=niri
+    Type=Application
+  '';
+};
+
+environment.pathsToLink = [ "/share/wayland-sessions" ];
 
 programs.seahorse.enable = true;
 

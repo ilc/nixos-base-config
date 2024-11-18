@@ -11,6 +11,14 @@
   fonts.fontconfig.enable = true;
 
   home.packages = [
+    pkgs.ungoogled-chromium
+#    pkgs.bambu-studio
+    pkgs.rofi
+    pkgs.grim
+    pkgs.zed-editor
+    pkgs.pyright
+    pkgs.ccls
+    pkgs.eza
     pkgs.tor-browser-bundle-bin
     pkgs.atuin
     pkgs.shellcheck
@@ -25,17 +33,17 @@
     pkgs.libxcrypt-legacy
     pkgs.font-awesome
     pkgs.kitty
-    pkgs.lorri
     pkgs.git
     pkgs.helix
     pkgs.thefuck
+    pkgs.shikane
     pkgs.python312Packages.msrest
-    pkgs.azure-cli
+#    pkgs.azure-cli
     pkgs.gh
     pkgs.gdb
     pkgs.tmux
     pkgs.fzf
-    pkgs.awscli2
+#    pkgs.awscli2
     pkgs.ripgrep
     pkgs.google-cloud-sdk
     pkgs.virtualenv
@@ -52,13 +60,10 @@
     pkgs.rustc
     pkgs.zig
     pkgs.dig
-#    pkgs.yubikey-manager
     pkgs.yubioath-flutter
     pkgs.wofi
     pkgs.bemenu
     pkgs.slurp
-    #    pkgs.pipewire-media-session
-    #    pkgs.yubioath-desktop
     pkgs.jq
     pkgs.obs-studio
     pkgs.linuxPackages.v4l2loopback.bin
@@ -68,19 +73,17 @@
     pkgs.hunspellDicts.en-us-large
     pkgs.mbuffer
     pkgs.python312Packages.pep8
-    pkgs.ungoogled-chromium
     pkgs.zellij
     pkgs.emacs
     pkgs.gnumake
     pkgs.python312Packages.cffi
     pkgs.rustc
     pkgs.cargo
-    pkgs.nheko
     pkgs.terraform
     pkgs.file
     pkgs.super-productivity
     pkgs.wl-clipboard
-    pkgs.vagrant
+#    pkgs.vagrant
     #    pkgs.python310Packages.
     #    pkgs.python310Packages.
     #    pkgs.vivaldi
@@ -88,7 +91,7 @@
     #    pkgs.podman
     #    pkgs.podman-compose
     pkgs.jetbrains.pycharm-professional
-#   pkgs.jetbrains.clion
+    pkgs.jetbrains.clion
     pkgs.jetbrains.webstorm
     pkgs.jetbrains.idea-ultimate
     pkgs.jetbrains.goland
@@ -110,8 +113,6 @@
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
-  services.lorri.enable = true;
-
   home.pointerCursor = {
     gtk.enable = true;
     package = pkgs.gnome.adwaita-icon-theme;
@@ -137,7 +138,7 @@
     enable = true;
     extensions = with pkgs.vscode-extensions; [
       vscodevim.vim
-      ms-python.python
+#      ms-python.python
       ms-vscode-remote.remote-ssh
       #ms-vscode.cpptools
       #    ms-vscode-remote.vscode-remote-extensionpack
