@@ -38,8 +38,6 @@
       # Prompt format - 2 lines
       add_newline = false;  # No blank line between prompts
       format = lib.concatStrings [
-        "$username"
-        "$hostname"
         "$directory"
         "$git_branch"
         "$git_status"
@@ -55,13 +53,15 @@
         "$cmd_duration"
         "$time"
         "$line_break"
+        "$username"
+        "$hostname"
         "$character"
       ];
 
-      # Character - ASCII safe
+      # Character - traditional prompt
       character = {
-        success_symbol = "[>](bold green)";
-        error_symbol = "[x](bold red)";
+        success_symbol = "[\\$](bold green)";
+        error_symbol = "[\\$](bold red)";
       };
 
       # Directory - full path
@@ -179,7 +179,7 @@
         disabled = false;
         format = "[$time]($style) ";
         style = "bold white";
-        time_format = "%H:%M:%S";
+        time_format = "%y-%m-%d %a %H:%M:%S%z";
       };
 
       # Username
@@ -192,7 +192,7 @@
       # Hostname - show always
       hostname = {
         ssh_only = false;
-        format = "[$hostname]($style):";
+        format = "[$hostname]($style) ";
         style = "bold green";
       };
     };

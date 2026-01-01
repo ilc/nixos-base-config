@@ -37,6 +37,7 @@
   boot = {
     loader = {
       systemd-boot.enable = true;
+      systemd-boot.configurationLimit = 10;
       efi.canTouchEfiVariables = true;
     };
     # Video/audio loopback for OBS etc
