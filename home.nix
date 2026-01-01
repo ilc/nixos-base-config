@@ -11,15 +11,20 @@
   fonts.fontconfig.enable = true;
 
   home.packages = [
+    pkgs.claude-code
+    pkgs.claude-code-acp
+    pkgs.claude-monitor
+    pkgs.qmk
+    pkgs.bpftrace
     pkgs.ungoogled-chromium
-#    pkgs.bambu-studio
+    pkgs.bambu-studio
     pkgs.rofi
     pkgs.grim
     pkgs.zed-editor
     pkgs.pyright
     pkgs.ccls
     pkgs.eza
-    pkgs.tor-browser-bundle-bin
+    pkgs.tor-browser
     pkgs.atuin
     pkgs.shellcheck
     pkgs.kanshi
@@ -35,20 +40,19 @@
     pkgs.kitty
     pkgs.git
     pkgs.helix
-    pkgs.thefuck
     pkgs.shikane
-    pkgs.python312Packages.msrest
+#    pkgs.python312Packages.msrest
 #    pkgs.azure-cli
     pkgs.gh
     pkgs.gdb
     pkgs.tmux
     pkgs.fzf
-#    pkgs.awscli2
+    pkgs.awscli2
     pkgs.ripgrep
     pkgs.google-cloud-sdk
     pkgs.virtualenv
+    pkgs.nerd-fonts.jetbrains-mono
     pkgs.python312
-    pkgs.nerdfonts
     pkgs.libvirt
     pkgs.waybar
     pkgs.lsof
@@ -113,12 +117,6 @@
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
-  home.pointerCursor = {
-    gtk.enable = true;
-    package = pkgs.gnome.adwaita-icon-theme;
-    name = "Adwaita";
-    size = 12;
-  };
 
   home.sessionVariables = {
     EDITOR = "nvim";

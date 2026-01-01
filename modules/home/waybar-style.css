@@ -1,0 +1,503 @@
+/* =============================================================================
+   WAYBAR STYLE - High Contrast, Sharp Edges
+   Colorblind-friendly palette using brightness/shape differentiation
+   ============================================================================= */
+
+* {
+    font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
+    font-size: 13px;
+    min-height: 0;
+    border-radius: 0;
+}
+
+/* Main bar */
+window#waybar {
+    background-color: #1a1a1a;
+    border-top: 2px solid #ffffff;
+    color: #ffffff;
+}
+
+window#waybar.hidden {
+    opacity: 0.1;
+}
+
+button {
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+}
+
+button:hover {
+    background: transparent;
+}
+
+/* =============================================================================
+   WORKSPACES
+   ============================================================================= */
+
+#workspaces {
+    background: #000000;
+    border: 1px solid #666666;
+    margin: 4px;
+    padding: 0;
+}
+
+#workspaces button {
+    color: #888888;
+    padding: 0 6px;
+    margin: 0;
+    border-right: 1px solid #444444;
+    background: transparent;
+}
+
+#workspaces button:last-child {
+    border-right: none;
+}
+
+#workspaces button:hover {
+    background: #333333;
+    color: #ffffff;
+}
+
+#workspaces button.focused,
+#workspaces button.active {
+    background: #ffffff;
+    color: #000000;
+    font-weight: bold;
+}
+
+#workspaces button.urgent {
+    background: #ff0000;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+#workspaces button.visible {
+    background: #444444;
+    color: #ffffff;
+}
+
+/* =============================================================================
+   COMMON MODULE STYLING
+   ============================================================================= */
+
+#mode,
+#clock,
+#battery,
+#cpu,
+#memory,
+#disk,
+#temperature,
+#backlight,
+#network,
+#pulseaudio,
+#bluetooth,
+#power-profiles-daemon,
+#privacy,
+#custom-media,
+#tray,
+#idle_inhibitor,
+#scratchpad {
+    padding: 0 6px;
+    margin: 4px 1px;
+    border: 1px solid #666666;
+    background: #2a2a2a;
+    color: #ffffff;
+}
+
+/* =============================================================================
+   WINDOW TITLE
+   ============================================================================= */
+
+#window {
+    color: #cccccc;
+    font-weight: 500;
+    padding: 0 8px;
+    min-width: 300px;
+}
+
+#custom-spacer {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+window#waybar.empty #window {
+    background: transparent;
+    border: none;
+}
+
+/* =============================================================================
+   MODE
+   ============================================================================= */
+
+#mode {
+    background: #ffff00;
+    color: #000000;
+    font-weight: bold;
+    border: 2px solid #000000;
+}
+
+/* =============================================================================
+   CLOCK
+   ============================================================================= */
+
+#clock {
+    background: #000000;
+    color: #ffffff;
+    font-weight: bold;
+    border: 1px solid #ffffff;
+}
+
+/* =============================================================================
+   BATTERY - Uses patterns/intensity for states
+   ============================================================================= */
+
+#battery {
+    background: #2a2a2a;
+    color: #ffffff;
+    min-width: 55px;
+}
+
+#battery.good {
+    background: #004400;
+    color: #ffffff;
+    border-color: #00ff00;
+}
+
+#battery.charging {
+    background: #003366;
+    color: #ffffff;
+    border: 2px solid #00aaff;
+}
+
+#battery.plugged {
+    background: #003366;
+    color: #ffffff;
+}
+
+#battery.warning {
+    background: #664400;
+    color: #ffffff;
+    border: 2px solid #ffaa00;
+    font-weight: bold;
+}
+
+#battery.critical:not(.charging) {
+    background: #660000;
+    color: #ffffff;
+    border: 2px solid #ff0000;
+    font-weight: bold;
+    animation: blink 0.5s step-end infinite;
+}
+
+@keyframes blink {
+    50% {
+        background: #ff0000;
+        color: #000000;
+    }
+}
+
+/* =============================================================================
+   CPU
+   ============================================================================= */
+
+#cpu {
+    background: #003333;
+    color: #ffffff;
+    border-color: #00cccc;
+    min-width: 45px;
+}
+
+/* =============================================================================
+   MEMORY
+   ============================================================================= */
+
+#memory {
+    background: #330033;
+    color: #ffffff;
+    border-color: #cc00cc;
+    min-width: 45px;
+}
+
+/* =============================================================================
+   TEMPERATURE
+   ============================================================================= */
+
+#temperature {
+    background: #333300;
+    color: #ffffff;
+    border-color: #cccc00;
+    min-width: 55px;
+}
+
+#temperature.critical {
+    background: #660000;
+    color: #ffffff;
+    border: 2px solid #ff0000;
+    font-weight: bold;
+}
+
+/* =============================================================================
+   BACKLIGHT
+   ============================================================================= */
+
+#backlight {
+    background: #444444;
+    color: #ffffff;
+    border-color: #aaaaaa;
+    min-width: 50px;
+}
+
+/* =============================================================================
+   NETWORK
+   ============================================================================= */
+
+#network {
+    background: #003366;
+    color: #ffffff;
+    border-color: #0088ff;
+}
+
+#network.disconnected {
+    background: #660000;
+    color: #ffffff;
+    border: 2px solid #ff0000;
+}
+
+#network.linked {
+    background: #664400;
+    color: #ffffff;
+    border-color: #ffaa00;
+}
+
+/* =============================================================================
+   PULSEAUDIO
+   ============================================================================= */
+
+#pulseaudio {
+    background: #333300;
+    color: #ffffff;
+    border-color: #aaaa00;
+    min-width: 50px;
+}
+
+#pulseaudio.muted {
+    background: #1a1a1a;
+    color: #666666;
+    border: 1px dashed #666666;
+}
+
+#pulseaudio.bluetooth {
+    background: #003366;
+    border-color: #0088ff;
+}
+
+/* =============================================================================
+   BLUETOOTH
+   ============================================================================= */
+
+#bluetooth {
+    background: #003366;
+    color: #ffffff;
+    border-color: #0088ff;
+}
+
+#bluetooth.disabled,
+#bluetooth.off {
+    background: #1a1a1a;
+    color: #666666;
+    border: 1px dashed #666666;
+}
+
+#bluetooth.on {
+    background: #003366;
+    color: #ffffff;
+    border: 1px solid #0088ff;
+}
+
+#bluetooth.connected {
+    background: #004400;
+    color: #ffffff;
+    border: 2px solid #00ff00;
+    font-weight: bold;
+}
+
+/* =============================================================================
+   IDLE INHIBITOR
+   ============================================================================= */
+
+#idle_inhibitor {
+    background: #2a2a2a;
+    color: #666666;
+    border: 1px solid #666666;
+    min-width: 20px;
+}
+
+#idle_inhibitor.activated {
+    background: #004400;
+    color: #ffffff;
+    border: 2px solid #00ff00;
+}
+
+/* =============================================================================
+   TRAY
+   ============================================================================= */
+
+#tray {
+    background: #2a2a2a;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    background: #ff0000;
+}
+
+/* =============================================================================
+   SCRATCHPAD
+   ============================================================================= */
+
+#scratchpad {
+    background: #003333;
+    color: #ffffff;
+    border-color: #00cccc;
+}
+
+#scratchpad.empty {
+    background: transparent;
+    border: none;
+}
+
+/* =============================================================================
+   CUSTOM MEDIA
+   ============================================================================= */
+
+#custom-media {
+    background: #004400;
+    color: #ffffff;
+    border-color: #00cc00;
+}
+
+#custom-media.custom-spotify {
+    background: #004400;
+    border-color: #00ff00;
+}
+
+#custom-media.custom-vlc {
+    background: #663300;
+    border-color: #ff6600;
+}
+
+/* =============================================================================
+   PRIVACY
+   ============================================================================= */
+
+#custom-privacy-status {
+    background: #004400;
+    color: #00ff00;
+    border: 1px solid #00ff00;
+    min-width: 20px;
+}
+
+#privacy {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 4px 1px;
+}
+
+/* Default privacy item - red for mic/screenshare */
+#privacy-item {
+    background: #660000;
+    color: #ffffff;
+    border: 2px solid #ff0000;
+    padding: 0 10px;
+    font-weight: bold;
+}
+
+/* Audio out (headphones) - green, less alarming */
+#privacy-item.audio-out {
+    background: #004400;
+    color: #ffffff;
+    border: 2px solid #00ff00;
+}
+
+/* Screenshare - red */
+#privacy-item.screenshare {
+    background: #660000;
+    color: #ffffff;
+    border: 2px solid #ff0000;
+}
+
+/* Mic/audio-in - red */
+#privacy-item.audio-in {
+    background: #660000;
+    color: #ffffff;
+    border: 2px solid #ff0000;
+}
+
+/* =============================================================================
+   POWER PROFILES
+   ============================================================================= */
+
+#power-profiles-daemon {
+    background: #2a2a2a;
+    color: #ffffff;
+    min-width: 20px;
+}
+
+#power-profiles-daemon.performance {
+    background: #660000;
+    border-color: #ff4444;
+}
+
+#power-profiles-daemon.balanced {
+    background: #333300;
+    border-color: #aaaa00;
+}
+
+#power-profiles-daemon.power-saver {
+    background: #004400;
+    border-color: #00ff00;
+}
+
+/* =============================================================================
+   KEYBOARD STATE
+   ============================================================================= */
+
+#keyboard-state {
+    background: #2a2a2a;
+    padding: 0 8px;
+    margin: 4px 1px;
+    border: 1px solid #666666;
+}
+
+#keyboard-state > label {
+    padding: 0 5px;
+    color: #666666;
+}
+
+#keyboard-state > label.locked {
+    background: #ffff00;
+    color: #000000;
+    font-weight: bold;
+}
+
+/* =============================================================================
+   TOOLTIPS
+   ============================================================================= */
+
+tooltip {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+
+tooltip label {
+    color: #ffffff;
+    padding: 8px;
+}
