@@ -6,9 +6,6 @@
 # Symlinks to home directory
 .config
 
-# Old configs (keep in separate location if needed)
-slime/
-
 # Nix build results
 result
 result-*

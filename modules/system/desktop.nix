@@ -86,5 +86,6 @@
   # Desktop packages
   environment.systemPackages = with pkgs; [
     xwayland-satellite
+    appimage-run
   ];
 }

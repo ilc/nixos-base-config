@@ -28,6 +28,9 @@
 
   swapDevices = [ ];
 
+  # Slime-specific packages
+  environment.systemPackages = [ pkgs.ollama-vulkan ];
+
   # Networking
   networking.hostName = "slime";
   networking.useDHCP = lib.mkDefault true;
