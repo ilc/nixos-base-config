@@ -14,6 +14,12 @@
 
   # Nix settings
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.auto-optimise-store = true;
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
   nixpkgs.config.allowUnfree = true;
 
   # Documentation
@@ -22,6 +28,7 @@
   # Security
   security.sudo.wheelNeedsPassword = false;
   security.rtkit.enable = true;
+  security.polkit.enable = true;
 
   # Hardware
   hardware.enableRedistributableFirmware = true;
@@ -80,7 +87,7 @@
     isNormalUser = true;
     shell = pkgs.bash;
     description = "Ira Cooper";
-    extraGroups = [ "networkmanager" "wheel" "libvirtd" "input" ];
+    extraGroups = [ "networkmanager" "wheel" "libvirtd" "input" "podman" ];
   };
 
   # System packages (minimal - most go in home-manager)
@@ -93,6 +100,32 @@
       man-pages-posix
       pcscliteWithPolkit.out
       virtiofsd
+
+      # Hardware diagnostics
+      pciutils      # lspci
+      lshw          # lshw
+      lsscsi        # lsscsi
+      hwloc         # lstopo (CPU/memory topology)
+      lm_sensors    # sensors (temperature, fan, voltage)
+      dmidecode     # SMBIOS/system info
+      smartmontools # S.M.A.R.T. disk monitoring
+      nvme-cli      # NVMe management
+      ethtool       # network interface info
+
+      # System debugging
+      strace
+      iotop
+
+      # Network diagnostics
+      tcpdump
+      traceroute
+      whois
+
+      # Core utilities
+      curl
+      wget
+      rsync
+      parted
     ];
   };
 

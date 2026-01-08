@@ -1,5 +1,5 @@
 # System services configuration
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, hostname, ... }:
 
 {
   services = {
@@ -28,6 +28,24 @@
 
     # Flatpak
     flatpak.enable = true;
+
+    # SSD TRIM
+    fstrim = {
+      enable = true;
+      interval = "weekly";
+    };
+
+    # File indexing (locate command)
+    locate = {
+      enable = true;
+      package = pkgs.plocate;
+    };
+
+    # Intel thermal management (Intel laptops only)
+    thermald.enable = (hostname == "thunder" || hostname == "bear");
+
+    # Power management
+    power-profiles-daemon.enable = true;
   };
 
   # Udev rules for keyboards (Via, Vial)

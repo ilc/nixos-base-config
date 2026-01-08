@@ -4,31 +4,46 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # PINNED: GCC 15 (C23 default) breaks dfu-programmer - 'false' is now a keyword
-    # See: https://trofi.github.io/posts/326-gcc-15-switched-to-c23.html
-    # To test if unpinning is safe, run:
-    #   nix build nixpkgs#dfu-programmer
-    # If it builds, you can remove this input and the overlay in modules/system/default.nix
-    nixpkgs-qmk.url = "github:NixOS/nixpkgs/c0b0e0fddf73fd517c3471e546c0df87a42d53f4";
-
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-qmk, home-manager, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, ... }@inputs:
     let
       system = "x86_64-linux";
 
-      # Overlay to use pinned nixpkgs for QMK packages (GCC 15 breaks dfu-programmer)
-      qmkOverlay = final: prev: let
-        pinnedPkgs = import nixpkgs-qmk { inherit system; config.allowUnfree = true; };
-      in {
-        qmk = pinnedPkgs.qmk;
-        qmk_hid = pinnedPkgs.qmk_hid;
-        via = pinnedPkgs.via;
-        vial = pinnedPkgs.vial;
+      # Update dfu-programmer to 1.1.0 (nixpkgs has ancient 0.7.2 from 2014)
+      # TODO: Submit PR to nixpkgs and remove this overlay
+      dfuProgrammerOverlay = final: prev: {
+        dfu-programmer = prev.stdenv.mkDerivation rec {
+          pname = "dfu-programmer";
+          version = "1.1.0";
+
+          src = prev.fetchFromGitHub {
+            owner = "dfu-programmer";
+            repo = "dfu-programmer";
+            rev = "v${version}";
+            hash = "sha256-YhiBD8rpzEVVaP3Rdfq74lhZ0Mu7OEbrMsM3fBL1Kvk=";
+          };
+
+          postPatch = ''
+            touch ChangeLog
+            patchShebangs .
+          '';
+
+          nativeBuildInputs = [ prev.autoreconfHook prev.pkg-config ];
+          buildInputs = [ prev.libusb1 ];
+
+          meta = with prev.lib; {
+            description = "Device Firmware Update based USB programmer for Atmel chips";
+            homepage = "https://github.com/dfu-programmer/dfu-programmer";
+            license = licenses.gpl2Plus;
+            platforms = platforms.unix;
+            mainProgram = "dfu-programmer";
+          };
+        };
       };
 
       # Helper function to create a NixOS configuration for a host
@@ -42,8 +57,8 @@
           # System modules
           ./modules/system
 
-          # QMK overlay
-          { nixpkgs.overlays = [ qmkOverlay ]; }
+          # Overlays
+          { nixpkgs.overlays = [ dfuProgrammerOverlay ]; }
 
           # Home-manager integration
           home-manager.nixosModules.home-manager

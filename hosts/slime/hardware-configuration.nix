@@ -7,6 +7,7 @@
   ];
 
   # Kernel
+  boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "usbhid" "usb_storage" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
@@ -28,8 +29,18 @@
 
   swapDevices = [ ];
 
-  # Slime-specific packages
-  environment.systemPackages = [ pkgs.ollama-vulkan ];
+  # Slime-specific packages (AMD Strix Halo)
+  environment.systemPackages = with pkgs; [
+    ollama-vulkan
+    radeontop    # GPU utilization
+    lact         # GPU control (fan curves, power) - uses wheel group
+  ];
+
+  # CoreCtrl with polkit rules (adds corectrl group)
+  programs.corectrl.enable = true;
+
+  # Add user to corectrl group
+  users.users.ira.extraGroups = [ "corectrl" ];
 
   # Networking
   networking.hostName = "slime";

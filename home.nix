@@ -41,8 +41,8 @@
     pkgs.git
     pkgs.helix
     pkgs.shikane
-#    pkgs.python312Packages.msrest
-#    pkgs.azure-cli
+    pkgs.azure-cli
+    pkgs.terraform-ls
     pkgs.gh
     pkgs.gdb
     pkgs.tmux

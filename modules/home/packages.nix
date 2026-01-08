@@ -41,10 +41,11 @@
     # Cloud CLI
     awscli2
     google-cloud-sdk
-    # azure-cli  # Uncomment if needed
+    azure-cli
 
     # Infrastructure
     terraform
+    terraform-ls
 
     # Containers
     podman
@@ -54,6 +55,7 @@
     # Terminal tools
     tmux
     zellij
+    htop
     # minicom  # broken: lrzsz fails with GCC 15
     mbuffer
     file
@@ -61,6 +63,11 @@
     lsof
     killall
     usbutils
+    tree
+    ncdu
+    unzip
+    p7zip
+    iftop
 
     # Network
     dig
