@@ -73,9 +73,9 @@ let
       --property=BindPaths="$SSH_SOCK" \
       --property=ProtectSystem=strict \
       --property=PrivateUsers=false \
-      --property=Environment=SSH_AUTH_SOCK="$SSH_SOCK" \
-      --property=Environment=GIT_SSH_COMMAND="ssh -F /dev/null -o UserKnownHostsFile=$HOME/.ssh/known_hosts" \
-      --property=Environment=PATH="/etc/profiles/per-user/$USER/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin" \
+      --setenv=SSH_AUTH_SOCK="$SSH_SOCK" \
+      --setenv=GIT_SSH_COMMAND="ssh -F /dev/null -o UserKnownHostsFile=$HOME/.ssh/known_hosts" \
+      --setenv=PATH="/etc/profiles/per-user/$USER/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin" \
       -- ${pkgs.claude-code}/bin/claude --dangerously-skip-permissions --permission-mode bypassPermissions "''${CLAUDE_ARGS[@]}"
   '';
 
