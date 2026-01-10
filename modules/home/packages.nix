@@ -12,7 +12,24 @@ let
 
     set -euo pipefail
 
-    PROJECT_DIR="''${1:-$(pwd)}"
+    # Create isolated temp directory for this instance
+    SANDBOX_TMP=$(mktemp -d "/tmp/claude-yolo.XXXXXX")
+    cleanup() { rm -rf "$SANDBOX_TMP"; }
+    trap cleanup EXIT
+
+    # Parse arguments: if first arg is a directory, use it; otherwise use pwd
+    # Remaining args are passed through to claude
+    if [[ $# -gt 0 && -d "$1" ]]; then
+        PROJECT_DIR="$1"
+        shift
+    elif [[ $# -gt 0 && "$1" == -* ]]; then
+        PROJECT_DIR="$(pwd)"
+    else
+        PROJECT_DIR="''${1:-$(pwd)}"
+        [[ $# -gt 0 ]] && shift
+    fi
+
+    CLAUDE_ARGS=("$@")
     UID_NUM=$(id -u)
 
     # Resolve actual ssh-agent socket location
@@ -33,6 +50,7 @@ let
 
     echo "Starting Claude in sandbox..."
     echo "  Project: $PROJECT_DIR"
+    echo "  Temp dir: $SANDBOX_TMP"
     echo "  SSH Agent: $SSH_SOCK"
     echo ""
 
@@ -44,7 +62,7 @@ let
       --property=BindReadOnlyPaths=/nix \
       --property=BindReadOnlyPaths=/etc \
       --property=BindReadOnlyPaths=/run/current-system \
-      --property=BindPaths=/tmp \
+      --property=BindPaths="$SANDBOX_TMP:/tmp" \
       --property=BindReadOnlyPaths="$HOME/.ssh/known_hosts" \
       --property=BindReadOnlyPaths="$HOME/.gitconfig" \
       --property=BindPaths="$HOME/.claude" \
@@ -56,8 +74,9 @@ let
       --property=ProtectSystem=strict \
       --property=PrivateUsers=false \
       --property=Environment=SSH_AUTH_SOCK="$SSH_SOCK" \
+      --property=Environment=GIT_SSH_COMMAND="ssh -F /dev/null -o UserKnownHostsFile=$HOME/.ssh/known_hosts" \
       --property=Environment=PATH="/etc/profiles/per-user/$USER/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin" \
-      -- ${pkgs.claude-code}/bin/claude --dangerously-skip-permissions --permission-mode bypassPermissions
+      -- ${pkgs.claude-code}/bin/claude --dangerously-skip-permissions --permission-mode bypassPermissions "''${CLAUDE_ARGS[@]}"
   '';
 
   # Claude tools - not for thunder
