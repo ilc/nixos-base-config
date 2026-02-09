@@ -154,6 +154,7 @@ in
     # Network
     dig
     mosh
+    mtr
 
     # Fonts
     nerd-fonts.jetbrains-mono

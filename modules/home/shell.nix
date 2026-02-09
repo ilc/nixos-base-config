@@ -8,13 +8,10 @@
     enableCompletion = true;
 
     shellAliases = {
-      ls = "eza";
+      l = "eza";
       ll = "eza -l";
       la = "eza -la";
       lt = "eza --tree";
-      cat = "bat";
-      grep = "rg";
-      find = "fd";
     };
 
     # Bash init
@@ -254,5 +251,7 @@
     dust
     btop
     delta
+    difftastic
+    tokei
   ];
 }
