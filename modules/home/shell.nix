@@ -229,7 +229,7 @@
   # Eza (modern ls)
   programs.eza = {
     enable = true;
-    enableBashIntegration = true;
+    enableBashIntegration = false;
     icons = "auto";
     git = true;
   };

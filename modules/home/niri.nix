@@ -55,7 +55,7 @@
 
     // Window rules
     window-rule {
-        match app-id="foot"
+        match app-id="com.mitchellh.ghostty"
         default-column-width { proportion 0.25; }
     }
 
@@ -82,7 +82,7 @@
     binds {
         Mod+Shift+Slash { show-hotkey-overlay; }
 
-        Mod+T { spawn "foot"; }
+        Mod+T { spawn "ghostty"; }
         Mod+D { spawn "rofi" "-show" "run"; }
         Super+Alt+L { spawn "swaylock"; }
 

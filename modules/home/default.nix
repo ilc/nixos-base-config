@@ -9,7 +9,7 @@
     ./sway.nix
     ./niri.nix
     ./waybar.nix
-    ./foot.nix
+    ./ghostty.nix
     ./kanshi.nix
     ./packages.nix
   ];

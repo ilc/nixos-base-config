@@ -10,7 +10,7 @@
 
     config = {
       modifier = "Mod4";
-      terminal = "foot";
+      terminal = "ghostty";
       menu = "rofi -show run";
 
       defaultWorkspace = "workspace 1-1";
@@ -38,8 +38,8 @@
         mod = "Mod4";
       in {
         # Terminal
-        "${mod}+Return" = "exec foot";
-        "${mod}+u" = "exec foot";
+        "${mod}+Return" = "exec ghostty";
+        "${mod}+u" = "exec ghostty";
 
         # Kill window
         "${mod}+Shift+q" = "kill";
