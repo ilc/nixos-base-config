@@ -77,6 +77,7 @@
     networkmanager.enable = true;
     enableIPv6 = false;
     firewall.enable = true;
+    firewall.allowedTCPPorts = lib.optionals (hostname != "thunder") [ 5174 ];
     interfaces.lo.ipv4.addresses = [
       { address = "172.17.0.1"; prefixLength = 32; }
     ];
@@ -87,7 +88,7 @@
     isNormalUser = true;
     shell = pkgs.bash;
     description = "Ira Cooper";
-    extraGroups = [ "networkmanager" "wheel" "libvirtd" "input" "podman" ];
+    extraGroups = [ "networkmanager" "wheel" "libvirtd" "input" "podman" "dialout" ];
   };
 
   # System packages (minimal - most go in home-manager)

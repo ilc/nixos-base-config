@@ -119,6 +119,15 @@ in
     virtualenv
     python312Packages.pep8
     python312Packages.cffi
+    uv
+    ruff
+
+    # Development - C/C++
+    valgrind
+
+    # Development - Tools
+    hyperfine
+    nix-output-monitor
 
     # Cloud CLI
     awscli2
