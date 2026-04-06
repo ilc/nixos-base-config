@@ -8,6 +8,11 @@
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    claude-code-nix = {
+      url = "github:sadjow/claude-code-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
@@ -58,7 +63,7 @@
           ./modules/system
 
           # Overlays
-          { nixpkgs.overlays = [ dfuProgrammerOverlay ]; }
+          { nixpkgs.overlays = [ dfuProgrammerOverlay inputs.claude-code-nix.overlays.default ]; }
 
           # Home-manager integration
           home-manager.nixosModules.home-manager

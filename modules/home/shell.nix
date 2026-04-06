@@ -24,13 +24,21 @@
 
       # pay-respects integration (press F to pay respects)
       eval "$(pay-respects bash --alias)"
+
+      # PROMPT_COMMAND hook ordering: direnv -> zoxide -> starship -> atuin
+      eval "$(direnv hook bash)"
+      eval "$(zoxide init bash)"
+      if [[ $TERM != "dumb" ]]; then
+        eval "$(starship init bash --print-full-init)"
+      fi
+      eval "$(atuin init bash)"
     '';
   };
 
   # Starship prompt - ASCII-safe symbols for easy copy-paste
   programs.starship = {
     enable = true;
-    enableBashIntegration = true;
+    enableBashIntegration = false;  # manually init in bashrc before atuin
     settings = {
       # Prompt format - 2 lines
       add_newline = false;  # No blank line between prompts
@@ -198,7 +206,7 @@
   # Atuin (shell history)
   programs.atuin = {
     enable = true;
-    enableBashIntegration = true;
+    enableBashIntegration = false;  # manually init in bashrc after starship
     settings = {
       auto_sync = false;
       style = "full";
@@ -210,7 +218,7 @@
   # Zoxide (smart cd)
   programs.zoxide = {
     enable = true;
-    enableBashIntegration = true;
+    enableBashIntegration = false;  # manually init in bashrc with other hooks
   };
 
   # FZF (fuzzy finder)
@@ -222,7 +230,7 @@
   # Direnv (per-directory environments)
   programs.direnv = {
     enable = true;
-    enableBashIntegration = true;
+    enableBashIntegration = false;  # manually init in bashrc before starship/atuin
     nix-direnv.enable = true;
   };
 

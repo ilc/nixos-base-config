@@ -82,7 +82,7 @@ let
   # Claude tools - not for thunder
   claudePackages = lib.optionals (hostname != "thunder") [
     pkgs.claude-code
-    pkgs.claude-code-acp
+    pkgs.claude-agent-acp
     pkgs.claude-monitor
     claude-yolo
   ];
@@ -188,7 +188,7 @@ in
     libxcrypt-legacy
 
     # Wine (waylandFull for Wayland support)
-    wineWowPackages.waylandFull
+    wineWow64Packages.waylandFull
     winetricks
 
     # Misc utilities

@@ -155,9 +155,9 @@ programs.xwayland = {
       via
       vial
       virtiofsd
-      wineWowPackages.stable
+      wineWow64Packages.stable
       winetricks
-      wineWowPackages.waylandFull
+      wineWow64Packages.waylandFull
       flatpak-builder
       xwayland-satellite
     ];

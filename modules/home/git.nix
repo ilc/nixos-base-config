@@ -4,6 +4,7 @@
 {
   programs.git = {
     enable = true;
+    signing.format = null;
 
     # User info left unconfigured (set per-repo or globally outside Nix)
     # userName = "Ira Cooper";

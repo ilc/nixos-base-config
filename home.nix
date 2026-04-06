@@ -12,7 +12,7 @@
 
   home.packages = [
     pkgs.claude-code
-    pkgs.claude-code-acp
+    pkgs.claude-agent-acp
     pkgs.claude-monitor
     pkgs.qmk
     pkgs.bpftrace
@@ -23,9 +23,7 @@
     pkgs.zed-editor
     pkgs.pyright
     pkgs.ccls
-    pkgs.eza
     pkgs.tor-browser
-    pkgs.atuin
     pkgs.shellcheck
     pkgs.kanshi
     pkgs.qmk_hid

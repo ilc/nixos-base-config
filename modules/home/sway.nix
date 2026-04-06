@@ -130,6 +130,9 @@
         "${mod}+Control+Shift+Left" = "move container to output left";
         "${mod}+Control+Shift+Right" = "move container to output right";
 
+        # Screenshot region to clipboard
+        "${mod}+Shift+s" = ''exec grim -g "$(slurp -w 0)" - | wl-copy'';
+
         # Resize mode
         "${mod}+r" = "mode resize";
       };
