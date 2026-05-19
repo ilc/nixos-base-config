@@ -1,4 +1,4 @@
-# Shell configuration (bash, starship, atuin, zoxide, pay-respects)
+# Shell configuration (bash, starship, zoxide, pay-respects, fzf)
 { config, pkgs, lib, ... }:
 
 {
@@ -7,6 +7,13 @@
     enable = true;
     enableCompletion = true;
 
+    # Interactive history isolated from automation (which writes to default ~/.bash_history)
+    historyFile = "$HOME/.bash_history_interactive";
+    historySize = 100000;
+    historyFileSize = 100000;
+    historyControl = [ "ignoredups" "ignorespace" ];
+    shellOptions = [ "histappend" "lithist" "histverify" ];
+
     shellAliases = {
       l = "eza";
       ll = "eza -l";
@@ -14,7 +21,6 @@
       lt = "eza --tree";
     };
 
-    # Bash init
     initExtra = ''
       # Flatpak XDG paths
       export XDG_DATA_DIRS="$XDG_DATA_DIRS:/usr/share:/var/lib/flatpak/exports/share:$HOME/.local/share/flatpak/exports/share"
@@ -22,23 +28,27 @@
       # Add ~/bin to PATH
       export PATH="$HOME/bin:$PATH"
 
+      # Render timestamps in `history` output and parse #<ts> lines on load
+      export HISTTIMEFORMAT='%F %T  '
+
       # pay-respects integration (press F to pay respects)
       eval "$(pay-respects bash --alias)"
 
-      # PROMPT_COMMAND hook ordering: direnv -> zoxide -> starship -> atuin
+      # PROMPT_COMMAND hook ordering: direnv -> zoxide -> starship -> history sync
       eval "$(direnv hook bash)"
       eval "$(zoxide init bash)"
       if [[ $TERM != "dumb" ]]; then
         eval "$(starship init bash --print-full-init)"
       fi
-      eval "$(atuin init bash)"
+      # history -a: append new entries; history -n: read entries appended by other shells
+      PROMPT_COMMAND="''${PROMPT_COMMAND:+$PROMPT_COMMAND; }history -a; history -n"
     '';
   };
 
   # Starship prompt - ASCII-safe symbols for easy copy-paste
   programs.starship = {
     enable = true;
-    enableBashIntegration = false;  # manually init in bashrc before atuin
+    enableBashIntegration = false;  # manually init in bashrc
     settings = {
       # Prompt format - 2 lines
       add_newline = false;  # No blank line between prompts
@@ -203,34 +213,30 @@
     };
   };
 
-  # Atuin (shell history)
-  programs.atuin = {
-    enable = true;
-    enableBashIntegration = false;  # manually init in bashrc after starship
-    settings = {
-      auto_sync = false;
-      style = "full";
-      inline_height = 0;
-      enter_accept = false;
-    };
-  };
-
   # Zoxide (smart cd)
   programs.zoxide = {
     enable = true;
     enableBashIntegration = false;  # manually init in bashrc with other hooks
   };
 
-  # FZF (fuzzy finder)
+  # FZF (fuzzy finder) — Ctrl-R bound by enableBashIntegration
   programs.fzf = {
     enable = true;
     enableBashIntegration = true;
+    historyWidgetOptions = [
+      "--height=80%"
+      "--border=rounded"
+      "--info=inline"
+      "--prompt=' '"
+      "--pointer='▶'"
+      "--color=bg+:#2d2d2d,fg+:#ffffff,hl:#ff6432,hl+:#ff55c8,prompt:#ff55c8,pointer:#ff55c8"
+    ];
   };
 
   # Direnv (per-directory environments)
   programs.direnv = {
     enable = true;
-    enableBashIntegration = false;  # manually init in bashrc before starship/atuin
+    enableBashIntegration = false;  # manually init in bashrc with other hooks
     nix-direnv.enable = true;
   };
 
