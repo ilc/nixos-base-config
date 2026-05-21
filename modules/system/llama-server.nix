@@ -96,9 +96,12 @@ in {
           exit 1
         fi
 
-        # MTP speculative decoding: the model has draft-MTP heads embedded
-        # (unsloth/Qwen3.6-35B-A3B-MTP-GGUF), and our pinned llama.cpp
-        # build supports --spec-type draft-mtp.
+        # MTP / speculative-decoding flags removed: benchmarked on Strix
+        # Halo (Vulkan/RADV) and the draft-head compute overhead exactly
+        # cancels token-acceptance savings. ~0-10% gain at best, not worth
+        # the operational fragility (-np 1 constraint, draft context
+        # memory cost, less common code path). Stock decode is 62 tok/s
+        # for this MoE on this iGPU, which is plenty for the workload.
         exec ${llama-cpp-mtp}/bin/llama-server \
           -m "${modelPath}" \
           -ngl 99 \
@@ -108,8 +111,6 @@ in {
           -ctk q8_0 -ctv q8_0 \
           -np 1 \
           -t 16 \
-          --spec-type draft-mtp \
-          --spec-draft-n-max 2 \
           --host 0.0.0.0 \
           --port 8000
       '';
