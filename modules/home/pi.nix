@@ -94,7 +94,10 @@ in {
   # in this setup. See pi docs: telemetry + version check.
   home.sessionVariables.PI_OFFLINE = "1";
 
-  # Pi config template — drop the slime provider into models.json by hand.
+  # Pi config template — static snapshot of slime's model lineup.
+  # On slime: `slime-model gen-pi-config --out ~/.pi/agent/models.json` is
+  # the live source of truth. On thunder/bear: cp the template into place.
+  # Keep this in sync with slime's registry when you change the lineup.
   home.file.".pi/agent/models.json.template".text = builtins.toJSON {
     providers = {
       slime = {
@@ -103,19 +106,13 @@ in {
         apiKey = "unused";
         compat = {
           supportsDeveloperRole = false;
-          # Tells pi to send chat_template_kwargs.enable_thinking — the
-          # wire format llama-server uses for Qwen3.x thinking control.
-          # Shift+Tab in pi cycles thinking off/minimal/low/medium/high/xhigh.
           thinkingFormat = "qwen-chat-template";
         };
         models = [
-          {
-            id = "qwen3.6-35b-a3b-mtp";
-            name = "Qwen3.6 35B-A3B (slime)";
-            contextWindow = 262144;
-            maxTokens = 16384;
-            reasoning = true;
-          }
+          { id = "qwen";        name = "Qwen3.6 35B-A3B-MTP (MoE, fast daily)";  contextWindow = 131072; maxTokens = 16384; reasoning = true; }
+          { id = "qwen-dense";  name = "Qwen3.6 27B (dense, slow but sharper)";  contextWindow = 65536;  maxTokens = 16384; reasoning = true; }
+          { id = "gemma";       name = "Gemma 4 26B-A4B-it (MoE, alt fast)";     contextWindow = 131072; maxTokens = 16384; }
+          { id = "gemma-dense"; name = "Gemma 4 31B-it (dense, slow alt)";       contextWindow = 65536;  maxTokens = 16384; }
         ];
       };
     };
