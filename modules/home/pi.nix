@@ -10,17 +10,13 @@ let
     runtimeInputs = with pkgs; [ bubblewrap pi-coding-agent ];
     text = ''
       work="$(pwd)"
-      mkdir -p "$work/.pi-yolo-home"
-
-      # pi state (config, sessions, auth) lives in ~/.pi. Bind read-write so
-      # pi can persist sessions and read models.json. Acceptable under the
-      # "don't eat the machine" threat model — pi's own data is fair game.
-      #
-      # Mount-point ordering: bwrap's second --bind destination path is
-      # evaluated *after* the HOME bind, so the .pi subdir has to exist
-      # on the host inside .pi-yolo-home/ before bwrap runs, else the
-      # bind silently no-ops and the sandbox sees an empty ~/.pi.
-      mkdir -p "$HOME/.pi" "$work/.pi-yolo-home/.pi"
+      # Persistent sandbox state lives inside $work so it travels with the
+      # project. .pi-yolo-home is bind-mounted as the sandbox HOME at a
+      # path (/sandbox) that doesn't collide with the user's real HOME —
+      # this matters when $work is under $HOME, which would otherwise be
+      # shadowed by binding over /home/ira.
+      sandbox_state="$work/.pi-yolo-home"
+      mkdir -p "$sandbox_state/.pi" "$HOME/.pi"
 
       exec ${pkgs.bubblewrap}/bin/bwrap \
         --bind "$work" "$work" \
@@ -32,9 +28,9 @@ let
         --ro-bind /run/current-system /run/current-system \
         --ro-bind /run/wrappers /run/wrappers \
         --dev /dev --proc /proc --tmpfs /tmp \
-        --bind "$work/.pi-yolo-home" "$HOME" \
-        --bind "$HOME/.pi" "$HOME/.pi" \
-        --setenv HOME "$HOME" \
+        --bind "$sandbox_state" /sandbox \
+        --bind "$HOME/.pi" /sandbox/.pi \
+        --setenv HOME /sandbox \
         --setenv PATH "$PATH" \
         --setenv TERM "''${TERM:-xterm-256color}" \
         --share-net \
