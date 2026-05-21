@@ -15,8 +15,12 @@ let
       # pi state (config, sessions, auth) lives in ~/.pi. Bind read-write so
       # pi can persist sessions and read models.json. Acceptable under the
       # "don't eat the machine" threat model — pi's own data is fair game.
-      mkdir -p "$HOME/.pi"
-      pi_state_args=(--bind "$HOME/.pi" "$work/.pi-yolo-home/.pi")
+      #
+      # Mount-point ordering: bwrap's second --bind destination path is
+      # evaluated *after* the HOME bind, so the .pi subdir has to exist
+      # on the host inside .pi-yolo-home/ before bwrap runs, else the
+      # bind silently no-ops and the sandbox sees an empty ~/.pi.
+      mkdir -p "$HOME/.pi" "$work/.pi-yolo-home/.pi"
 
       exec ${pkgs.bubblewrap}/bin/bwrap \
         --bind "$work" "$work" \
@@ -29,7 +33,7 @@ let
         --ro-bind /run/wrappers /run/wrappers \
         --dev /dev --proc /proc --tmpfs /tmp \
         --bind "$work/.pi-yolo-home" "$HOME" \
-        "''${pi_state_args[@]}" \
+        --bind "$HOME/.pi" "$HOME/.pi" \
         --setenv HOME "$HOME" \
         --setenv PATH "$PATH" \
         --setenv TERM "''${TERM:-xterm-256color}" \
