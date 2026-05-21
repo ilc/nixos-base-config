@@ -1,5 +1,21 @@
-# llama.cpp server for slime — Qwen3.6-35B-A3B-MTP with Vulkan backend.
-# Only active on slime. Other hosts get no-op.
+# llama.cpp server for slime — runtime-registry-driven.
+#
+# What lives in nix (declarative):
+#   - The llama.cpp build (Vulkan, no webui)
+#   - The systemd service that reads active model from runtime state
+#   - The slime-model CLI tool packaged from ./slime-model.py
+#   - The llama-server user, group, firewall port, directories
+#
+# What lives outside nix (runtime state managed by slime-model):
+#   - /var/lib/llama-server/registry.json — installed models + metadata
+#   - /var/lib/llama-server/active        — name of model to load
+#   - /var/lib/llama-server/models/*.gguf — the actual weights
+#
+# Bringup after rebuild:
+#   slime-model register <file> --name <name> --ctx <N> [...]   # for existing files
+#   slime-model fetch <hf-repo> --quant Q4_K_M --name <name>    # to download fresh
+#   slime-model use <name>                                       # activate
+#   slime-model gen-pi-config --out ~/.pi/agent/models.json      # update pi
 { config, pkgs, lib, hostname, inputs, ... }:
 
 let
@@ -13,12 +29,7 @@ let
     rocmSupport = false;
   }).overrideAttrs (old: {
     src = inputs.llama-cpp-src;
-    # Must be numeric — interpolated into LLAMA_BUILD_NUMBER (C++ int literal).
-    # Bump when upstream nixpkgs goes past this.
     version = "9081";
-
-    # Strip the embedded web UI (CMake option new in recent main).
-    # Removes the npm fetch entirely — no node deps come into the build.
     cmakeFlags = (old.cmakeFlags or []) ++ [
       "-DLLAMA_BUILD_UI=OFF"
       "-DLLAMA_USE_PREBUILT_UI=OFF"
@@ -34,13 +45,15 @@ let
     '';
   });
 
-  modelPath = "/var/lib/llama-server/models/qwen3.6-35b-a3b-mtp-UD-Q4_K_M.gguf";
+  slime-model = pkgs.writers.writePython3Bin "slime-model" {
+    libraries = with pkgs.python313Packages; [ huggingface-hub ];
+    flakeIgnore = [ "E501" "E402" "E741" "W503" "E265" "F401" ];
+  } (builtins.readFile ./slime-model.py);
+
 in {
   config = lib.mkIf enabled {
-    # Open serving port to LAN. Adjust firewall as needed for your network shape.
     networking.firewall.allowedTCPPorts = [ 8000 ];
 
-    # Dedicated service user with GPU group access (video + render for Vulkan/iGPU).
     users.users.llama-server = {
       isSystemUser = true;
       group = "llama-server";
@@ -50,11 +63,17 @@ in {
     };
     users.groups.llama-server = {};
 
-    # Expose llama-cpp + bench tools to the user too (debugging on slime)
-    environment.systemPackages = [ llama-cpp-mtp ];
+    environment.systemPackages = [ llama-cpp-mtp slime-model ];
+
+    # Initial state — empty registry, no active model. slime-model populates these.
+    systemd.tmpfiles.rules = [
+      "d /var/lib/llama-server          0755 llama-server llama-server - -"
+      "d /var/lib/llama-server/models   0755 llama-server llama-server - -"
+      "f /var/lib/llama-server/registry.json 0644 llama-server llama-server - {}"
+    ];
 
     systemd.services.llama-server = {
-      description = "llama.cpp server (Qwen3.6-35B-A3B-MTP, Vulkan)";
+      description = "llama.cpp server (slime model registry)";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
 
@@ -68,13 +87,13 @@ in {
         Type = "simple";
         User = "llama-server";
         Group = "llama-server";
+        # Don't restart on clean exit (used to signal "nothing to load yet").
+        # Still restart on actual failures.
         Restart = "on-failure";
         RestartSec = 5;
         WorkingDirectory = "/var/lib/llama-server";
         StateDirectory = "llama-server";
         StateDirectoryMode = "0755";
-
-        # Sandboxing — restrict but allow GPU + network
         NoNewPrivileges = true;
         ProtectSystem = "strict";
         ProtectHome = true;
@@ -87,32 +106,44 @@ in {
       };
 
       script = ''
-        if [[ ! -f "${modelPath}" ]]; then
-          echo "Model not found at ${modelPath}" >&2
-          echo "Download with (as the llama-server user):" >&2
-          echo "  sudo -u llama-server huggingface-cli download \\" >&2
-          echo "    unsloth/Qwen3.6-35B-A3B-MTP-GGUF UD-Q4_K_M.gguf \\" >&2
-          echo "    --local-dir /var/lib/llama-server/models" >&2
-          exit 1
+        active_file=/var/lib/llama-server/active
+        registry=/var/lib/llama-server/registry.json
+
+        if [[ ! -s "$active_file" ]]; then
+          echo "No active model set. Run: slime-model use <name>" >&2
+          exit 0
+        fi
+        active=$(cat "$active_file" | tr -d '[:space:]')
+        if [[ -z "$active" ]]; then
+          echo "Active file empty. Run: slime-model use <name>" >&2
+          exit 0
         fi
 
-        # MTP / speculative-decoding flags removed: benchmarked on Strix
-        # Halo (Vulkan/RADV) and the draft-head compute overhead exactly
-        # cancels token-acceptance savings. ~0-10% gain at best, not worth
-        # the operational fragility (-np 1 constraint, draft context
-        # memory cost, less common code path). Stock decode is 62 tok/s
-        # for this MoE on this iGPU, which is plenty for the workload.
+        if [[ ! -s "$registry" ]]; then
+          echo "Registry empty: $registry. Run slime-model register/fetch first." >&2
+          exit 0
+        fi
+
+        file=$(${pkgs.jq}/bin/jq -r --arg n "$active" '.[$n].file // empty' "$registry")
+        ctx=$(${pkgs.jq}/bin/jq -r --arg n "$active" '.[$n].ctx // empty' "$registry")
+        if [[ -z "$file" || -z "$ctx" ]]; then
+          echo "Active model '$active' not found in $registry" >&2
+          exit 0
+        fi
+
+        model_path="/var/lib/llama-server/models/$file"
+        if [[ ! -f "$model_path" ]]; then
+          echo "Model file missing: $model_path" >&2
+          exit 0
+        fi
+
+        echo "Starting llama-server: active=$active file=$file ctx=$ctx"
         exec ${llama-cpp-mtp}/bin/llama-server \
-          -m "${modelPath}" \
-          -ngl 99 \
-          -c 262144 \
-          -fa on \
-          --cache-reuse 256 \
-          -ctk q8_0 -ctv q8_0 \
-          -np 1 \
-          -t 16 \
-          --host 0.0.0.0 \
-          --port 8000
+          -m "$model_path" \
+          -ngl 99 -c "$ctx" -fa on \
+          --cache-reuse 256 -ctk q8_0 -ctv q8_0 \
+          -np 1 -t 16 \
+          --host 0.0.0.0 --port 8000
       '';
     };
   };
