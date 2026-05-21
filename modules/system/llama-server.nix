@@ -5,15 +5,33 @@
 let
   enabled = hostname == "slime";
 
-  # llama.cpp from pinned source (flake input) with Vulkan backend.
-  # MTP support requires recent main; pin via `nix flake lock --update-input llama-cpp-src`.
+  # llama.cpp from pinned source with Vulkan, web UI disabled (no npm fetch).
+  # Pinned via flake input — bump with `nix flake lock --update-input llama-cpp-src`.
   llama-cpp-mtp = (pkgs.llama-cpp.override {
     vulkanSupport = true;
     cudaSupport = false;
     rocmSupport = false;
   }).overrideAttrs (old: {
     src = inputs.llama-cpp-src;
-    version = "main-${inputs.llama-cpp-src.shortRev or "unknown"}";
+    # Must be numeric — interpolated into LLAMA_BUILD_NUMBER (C++ int literal).
+    # Bump when upstream nixpkgs goes past this.
+    version = "9081";
+
+    # Strip the embedded web UI (CMake option new in recent main).
+    # Removes the npm fetch entirely — no node deps come into the build.
+    cmakeFlags = (old.cmakeFlags or []) ++ [
+      "-DLLAMA_BUILD_UI=OFF"
+      "-DLLAMA_USE_PREBUILT_UI=OFF"
+    ];
+    npmDeps = null;
+    npmRoot = null;
+    nativeBuildInputs = builtins.filter
+      (x: let n = x.pname or x.name or ""; in
+        !(lib.hasInfix "nodejs" n || lib.hasInfix "npm-config" n))
+      old.nativeBuildInputs;
+    preConfigure = ''
+      prependToVar cmakeFlags "-DLLAMA_BUILD_COMMIT:STRING=${inputs.llama-cpp-src.shortRev or "unknown"}"
+    '';
   });
 
   modelPath = "/var/lib/llama-server/models/qwen3.6-35b-a3b-mtp-UD-Q4_K_M.gguf";
@@ -78,6 +96,9 @@ in {
           exit 1
         fi
 
+        # NOTE: MTP speculative decoding (--spec-type draft-mtp) isn't in
+        # nixpkgs llama-cpp b9080 yet. Run without it; layer back on when
+        # the flag becomes available or via a custom build.
         exec ${llama-cpp-mtp}/bin/llama-server \
           -m "${modelPath}" \
           -ngl 99 \
@@ -87,7 +108,6 @@ in {
           -ctk q8_0 -ctv q8_0 \
           -np 1 \
           -t 16 \
-          --spec-type draft-mtp --spec-draft-n-max 2 \
           --host 0.0.0.0 \
           --port 8000
       '';

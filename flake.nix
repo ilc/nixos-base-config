@@ -14,7 +14,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # llama.cpp source — pinned for MTP support on slime's llama-server.
+    # llama.cpp source — pinned for Qwen3.6 hybrid architecture (SSM/Mamba)
+    # support and MTP. Used by modules/system/llama-server.nix to build with
+    # the embedded web UI disabled (so no npm fetch).
     # Update with: nix flake lock --update-input llama-cpp-src
     llama-cpp-src = {
       url = "github:ggml-org/llama.cpp";
