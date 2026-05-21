@@ -141,18 +141,22 @@ in {
           exit 0
         fi
 
+        # Per-model extra flags (e.g. --chat-template-kwargs '{"enable_thinking":false}')
+        mapfile -t extra_flags < <(${pkgs.jq}/bin/jq -r --arg n "$active" '.[$n].flags // [] | .[]' "$registry")
+
         model_path="/var/lib/llama-server/models/$file"
         if [[ ! -f "$model_path" ]]; then
           echo "Model file missing: $model_path" >&2
           exit 0
         fi
 
-        echo "Starting llama-server: active=$active file=$file ctx=$ctx"
+        echo "Starting llama-server: active=$active file=$file ctx=$ctx flags=(''${extra_flags[*]})"
         exec ${llama-cpp-mtp}/bin/llama-server \
           -m "$model_path" \
           -ngl 99 -c "$ctx" -fa on \
           --cache-reuse 256 -ctk q8_0 -ctv q8_0 \
           -np 1 -t 16 \
+          "''${extra_flags[@]}" \
           --host 0.0.0.0 --port 8000
       '';
     };

@@ -130,6 +130,8 @@ def cmd_register(args: argparse.Namespace) -> None:
         entry["hf_repo"] = args.hf_repo
     if args.reasoning:
         entry["reasoning"] = True
+    if args.flag:
+        entry["flags"] = list(args.flag)
     reg[args.name] = entry
     save_registry(reg)
     print(f"Registered {args.name}: {src.name} (ctx={args.ctx})")
@@ -148,6 +150,10 @@ def cmd_set(args: argparse.Namespace) -> None:
         entry["reasoning"] = True
     if args.no_reasoning is True:
         entry.pop("reasoning", None)
+    if args.flag:
+        entry["flags"] = list(args.flag)
+    if args.no_flags:
+        entry.pop("flags", None)
     reg[args.name] = entry
     save_registry(reg)
     print(f"Updated {args.name}: {entry}")
@@ -237,6 +243,11 @@ def cmd_remove(args: argparse.Namespace) -> None:
     save_registry(reg)
     print(f"Unregistered {args.name}")
     if args.purge:
+        # Only delete the file if no remaining registry entry references it.
+        also_uses = [n for n, m in reg.items() if m["file"] == file_name]
+        if also_uses:
+            print(f"Skipping file delete: still used by {also_uses}")
+            return
         path = MODELS_DIR / file_name
         if path.exists():
             sudo("rm", str(path))
@@ -295,6 +306,8 @@ def main() -> None:
     pr.add_argument("--label")
     pr.add_argument("--hf-repo", help="optional HF repo for provenance")
     pr.add_argument("--reasoning", action="store_true")
+    pr.add_argument("--flag", action="append",
+                    help="extra arg to pass to llama-server (repeatable)")
     pr.add_argument("--force", action="store_true", help="overwrite existing entry")
 
     ps = sub.add_parser("set", help="update metadata on a registered model")
@@ -303,6 +316,10 @@ def main() -> None:
     ps.add_argument("--label")
     ps.add_argument("--reasoning", action="store_true")
     ps.add_argument("--no-reasoning", action="store_true")
+    ps.add_argument("--flag", action="append",
+                    help="extra arg to pass to llama-server (repeatable, replaces existing)")
+    ps.add_argument("--no-flags", action="store_true",
+                    help="clear all extra flags")
 
     pf = sub.add_parser("fetch", help="download from HF and register")
     pf.add_argument("repo", help="HF repo, e.g. unsloth/foo-GGUF")
