@@ -96,9 +96,9 @@ in {
           exit 1
         fi
 
-        # NOTE: MTP speculative decoding (--spec-type draft-mtp) isn't in
-        # nixpkgs llama-cpp b9080 yet. Run without it; layer back on when
-        # the flag becomes available or via a custom build.
+        # MTP speculative decoding: the model has draft-MTP heads embedded
+        # (unsloth/Qwen3.6-35B-A3B-MTP-GGUF), and our pinned llama.cpp
+        # build supports --spec-type draft-mtp.
         exec ${llama-cpp-mtp}/bin/llama-server \
           -m "${modelPath}" \
           -ngl 99 \
@@ -108,6 +108,8 @@ in {
           -ctk q8_0 -ctv q8_0 \
           -np 1 \
           -t 16 \
+          --spec-type draft-mtp \
+          --spec-draft-n-max 2 \
           --host 0.0.0.0 \
           --port 8000
       '';
