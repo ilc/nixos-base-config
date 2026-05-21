@@ -66,9 +66,14 @@ in {
     environment.systemPackages = [ llama-cpp-mtp slime-model ];
 
     # Initial state — empty registry, no active model. slime-model populates these.
+    # `z` rules enforce perms on each boot (the dir gets created 0700 by systemd's
+    # StateDirectory default and never resets without `z`; without read access the
+    # `slime-model status` command fails for non-root users).
     systemd.tmpfiles.rules = [
       "d /var/lib/llama-server          0755 llama-server llama-server - -"
       "d /var/lib/llama-server/models   0755 llama-server llama-server - -"
+      "z /var/lib/llama-server          0755 llama-server llama-server - -"
+      "z /var/lib/llama-server/models   0755 llama-server llama-server - -"
       "f /var/lib/llama-server/registry.json 0644 llama-server llama-server - {}"
     ];
 
