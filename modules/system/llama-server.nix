@@ -60,6 +60,9 @@ in {
       extraGroups = [ "video" "render" ];
       home = "/var/lib/llama-server";
       createHome = true;
+      # NixOS default homeMode is 0700 — that breaks slime-model's reads of
+      # registry.json and active by non-root users. Force 0755.
+      homeMode = "0755";
     };
     users.groups.llama-server = {};
 
@@ -97,8 +100,10 @@ in {
         Restart = "on-failure";
         RestartSec = 5;
         WorkingDirectory = "/var/lib/llama-server";
-        StateDirectory = "llama-server";
-        StateDirectoryMode = "0755";
+        # StateDirectory removed — it competes with tmpfiles for perm
+        # management and resets the dir to 0700 in some service-restart paths,
+        # which breaks slime-model for non-root users. tmpfiles 'd' + 'z' rules
+        # below own dir creation and permissions exclusively.
         NoNewPrivileges = true;
         ProtectSystem = "strict";
         ProtectHome = true;
