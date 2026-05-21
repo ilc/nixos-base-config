@@ -12,6 +12,7 @@
     ./ghostty.nix
     ./kanshi.nix
     ./packages.nix
+    ./pi.nix
   ];
 
   # Core home-manager settings

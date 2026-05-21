@@ -13,6 +13,13 @@
       url = "github:sadjow/claude-code-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # llama.cpp source — pinned for MTP support on slime's llama-server.
+    # Update with: nix flake lock --update-input llama-cpp-src
+    llama-cpp-src = {
+      url = "github:ggml-org/llama.cpp";
+      flake = false;
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:

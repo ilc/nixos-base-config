@@ -7,6 +7,7 @@
     ./audio.nix
     ./virtualization.nix
     ./services.nix
+    ./llama-server.nix
   ];
 
   # Core system settings
