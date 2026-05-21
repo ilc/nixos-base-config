@@ -105,7 +105,7 @@ in {
         exec ${llama-cpp-mtp}/bin/llama-server \
           -m "${modelPath}" \
           -ngl 99 \
-          -c 131072 \
+          -c 262144 \
           -fa on \
           --cache-reuse 256 \
           -ctk q8_0 -ctv q8_0 \

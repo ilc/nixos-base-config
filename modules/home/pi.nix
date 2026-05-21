@@ -12,10 +12,11 @@ let
       work="$(pwd)"
       mkdir -p "$work/.pi-yolo-home"
 
-      pi_config_args=()
-      if [[ -d "$HOME/.pi" ]]; then
-        pi_config_args+=(--ro-bind "$HOME/.pi" "$work/.pi-yolo-home/.pi")
-      fi
+      # pi state (config, sessions, auth) lives in ~/.pi. Bind read-write so
+      # pi can persist sessions and read models.json. Acceptable under the
+      # "don't eat the machine" threat model — pi's own data is fair game.
+      mkdir -p "$HOME/.pi"
+      pi_state_args=(--bind "$HOME/.pi" "$work/.pi-yolo-home/.pi")
 
       exec ${pkgs.bubblewrap}/bin/bwrap \
         --bind "$work" "$work" \
@@ -28,7 +29,7 @@ let
         --ro-bind /run/wrappers /run/wrappers \
         --dev /dev --proc /proc --tmpfs /tmp \
         --bind "$work/.pi-yolo-home" "$HOME" \
-        "''${pi_config_args[@]}" \
+        "''${pi_state_args[@]}" \
         --setenv HOME "$HOME" \
         --setenv PATH "$PATH" \
         --setenv TERM "''${TERM:-xterm-256color}" \
@@ -95,13 +96,20 @@ in {
         baseUrl = "http://slime:8000/v1";
         api = "openai-completions";
         apiKey = "unused";
-        compat = { supportsDeveloperRole = false; };
+        compat = {
+          supportsDeveloperRole = false;
+          # Tells pi to send chat_template_kwargs.enable_thinking — the
+          # wire format llama-server uses for Qwen3.x thinking control.
+          # Shift+Tab in pi cycles thinking off/minimal/low/medium/high/xhigh.
+          thinkingFormat = "qwen-chat-template";
+        };
         models = [
           {
             id = "qwen3.6-35b-a3b-mtp";
-            name = "Qwen3.6 35B-A3B-MTP (slime)";
-            contextWindow = 131072;
-            maxTokens = 8192;
+            name = "Qwen3.6 35B-A3B (slime)";
+            contextWindow = 262144;
+            maxTokens = 16384;
+            reasoning = true;
           }
         ];
       };
