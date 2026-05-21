@@ -89,6 +89,11 @@ in {
     llama-bench-sweep
   ];
 
+  # Disable pi's startup network ops to pi.dev (install/update telemetry,
+  # version check). Nix manages pi's version; pi.dev pings serve no purpose
+  # in this setup. See pi docs: telemetry + version check.
+  home.sessionVariables.PI_OFFLINE = "1";
+
   # Pi config template — drop the slime provider into models.json by hand.
   home.file.".pi/agent/models.json.template".text = builtins.toJSON {
     providers = {
