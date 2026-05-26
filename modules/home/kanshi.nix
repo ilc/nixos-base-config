@@ -6,7 +6,9 @@
     enable = true;
 
     settings = [
-      # Laptop only (bear, thunder)
+      # Laptop alone (eDP-1 only). Scale is per-host:
+      #   thunder = 2.0 (4K panel)
+      #   bear    = 1.75 (TBD — adjust once verified on the device)
       {
         profile = {
           name = "laptop";
@@ -14,7 +16,7 @@
             {
               criteria = "eDP-1";
               status = "enable";
-              scale = 1.75;
+              scale = if hostname == "thunder" then 2.0 else 1.75;
             }
           ];
         };
@@ -42,21 +44,6 @@
               position = "2560,0";
               scale = 1.5;
               mode = "3840x2160@60Hz";
-            }
-          ];
-        };
-      }
-
-      # Thunder (4K laptop) - normal mode
-      # TODO: Adjust when thunder hardware-configuration is provided
-      {
-        profile = {
-          name = "thunder-laptop";
-          outputs = [
-            {
-              criteria = "eDP-1";
-              status = "enable";
-              scale = 2.0;  # 4K laptop needs higher scale
             }
           ];
         };
