@@ -5,24 +5,12 @@
   services.kanshi = {
     enable = true;
 
+    # Kanshi is first-match-wins. Order profiles MOST-SPECIFIC FIRST so the
+    # docked profiles take precedence when all outputs are connected; the
+    # bare-laptop profile only matches when no externals are present.
     settings = [
-      # Laptop alone (eDP-1 only). Scale is per-host:
-      #   thunder = 2.0 (4K panel)
-      #   bear    = 1.75 (TBD — adjust once verified on the device)
-      {
-        profile = {
-          name = "laptop";
-          outputs = [
-            {
-              criteria = "eDP-1";
-              status = "enable";
-              scale = if hostname == "thunder" then 2.0 else 1.75;
-            }
-          ];
-        };
-      }
-
-      # Bear at desk with dual LG ULTRAGEAR+ 4K monitors
+      # Docked: laptop (bear/thunder) with dual LG 4K via Dell TB dock + KVM.
+      # eDP-1 MUST be disabled or the dock link runs out of bandwidth.
       {
         profile = {
           name = "bear-desk";
@@ -49,9 +37,7 @@
         };
       }
 
-      # Slime at KVM (same dual LG monitors as bear)
-      # Since slime is AMD desktop, it likely has different output names
-      # but kanshi matches by monitor serial, so this should work
+      # Slime (AMD desktop) — no eDP, just the two LGs.
       {
         profile = {
           name = "slime-kvm";
@@ -74,31 +60,17 @@
         };
       }
 
-      # Thunder at KVM (same dual LG monitors)
-      # Capped at 60Hz: thunder's DP link can't sustain 2× 4K @ 144Hz, and
-      # without an explicit cap the 510 will EDID-prefer 240Hz and starve
-      # the second monitor of bandwidth.
+      # Laptop alone (eDP-1 only). Scale is per-host:
+      #   thunder = 2.0 (Samsung 3200x2000 panel)
+      #   bear    = 1.75
       {
         profile = {
-          name = "thunder-kvm";
+          name = "laptop";
           outputs = [
             {
               criteria = "eDP-1";
-              status = "disable";
-            }
-            {
-              criteria = "LG Electronics LG ULTRAGEAR+ 510RMKU22925";
               status = "enable";
-              position = "0,0";
-              scale = 1.5;
-              mode = "3840x2160@144.050Hz";
-            }
-            {
-              criteria = "LG Electronics LG ULTRAGEAR+ 408NTEP4T404";
-              status = "enable";
-              position = "2560,0";
-              scale = 1.5;
-              mode = "3840x2160@144.050Hz";
+              scale = if hostname == "thunder" then 2.0 else 1.75;
             }
           ];
         };
