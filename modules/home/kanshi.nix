@@ -88,6 +88,9 @@
       }
 
       # Thunder at KVM (same dual LG monitors)
+      # Capped at 60Hz: thunder's DP link can't sustain 2× 4K @ 144Hz, and
+      # without an explicit cap the 510 will EDID-prefer 240Hz and starve
+      # the second monitor of bandwidth.
       {
         profile = {
           name = "thunder-kvm";
@@ -101,14 +104,14 @@
               status = "enable";
               position = "0,0";
               scale = 1.5;
-              mode = "3840x2160@144.050Hz";
+              mode = "3840x2160@60Hz";
             }
             {
               criteria = "LG Electronics LG ULTRAGEAR+ 408NTEP4T404";
               status = "enable";
               position = "2560,0";
               scale = 1.5;
-              mode = "3840x2160@144.050Hz";
+              mode = "3840x2160@60Hz";
             }
           ];
         };
