@@ -36,14 +36,14 @@
               status = "enable";
               position = "0,0";
               scale = 1.5;
-              mode = "3840x2160@60Hz";
+              mode = "3840x2160@144.050Hz";
             }
             {
               criteria = "LG Electronics LG ULTRAGEAR+ 408NTEP4T404";
               status = "enable";
               position = "2560,0";
               scale = 1.5;
-              mode = "3840x2160@60Hz";
+              mode = "3840x2160@144.050Hz";
             }
           ];
         };
@@ -61,14 +61,14 @@
               status = "enable";
               position = "0,0";
               scale = 1.5;
-              mode = "3840x2160@60Hz";
+              mode = "3840x2160@144.050Hz";
             }
             {
               criteria = "LG Electronics LG ULTRAGEAR+ 408NTEP4T404";
               status = "enable";
               position = "2560,0";
               scale = 1.5;
-              mode = "3840x2160@60Hz";
+              mode = "3840x2160@144.050Hz";
             }
           ];
         };
@@ -91,14 +91,14 @@
               status = "enable";
               position = "0,0";
               scale = 1.5;
-              mode = "3840x2160@60Hz";
+              mode = "3840x2160@144.050Hz";
             }
             {
               criteria = "LG Electronics LG ULTRAGEAR+ 408NTEP4T404";
               status = "enable";
               position = "2560,0";
               scale = 1.5;
-              mode = "3840x2160@60Hz";
+              mode = "3840x2160@144.050Hz";
             }
           ];
         };
