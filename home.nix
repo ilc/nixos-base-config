@@ -16,7 +16,6 @@
     pkgs.claude-monitor
     pkgs.qmk
     pkgs.bpftrace
-    pkgs.ungoogled-chromium
     pkgs.bambu-studio
     pkgs.rofi
     pkgs.grim
@@ -30,7 +29,6 @@
     pkgs.swaysome
     pkgs.minicom
     pkgs.usbutils
-    pkgs.firefox-bin
     pkgs.yubioath-flutter
     pkgs.gavin-bc
     pkgs.libxcrypt-legacy
@@ -43,7 +41,6 @@
     pkgs.terraform-ls
     pkgs.gh
     pkgs.gdb
-    pkgs.tmux
     pkgs.fzf
     pkgs.awscli2
     pkgs.ripgrep

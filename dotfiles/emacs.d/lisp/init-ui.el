@@ -25,7 +25,7 @@
 
 (blink-cursor-mode 0)
 (setq-default cursor-type 'bar)
-(set-cursor-color "#cccccc")
+(set-cursor-color "#888888")
 (setq ring-bell-function 'ignore)
 
 (golden-ratio-mode 1)

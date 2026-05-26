@@ -1,6 +1,9 @@
 {
     "layer": "top",
     "position": "bottom",
+    "ipc": true,
+    "mode": "hide",
+    "modifier-reset": "release",
     "height": 30,
     "spacing": 4,
     "modules-left": [

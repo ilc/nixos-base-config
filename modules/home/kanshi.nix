@@ -30,18 +30,18 @@
               status = "disable";
             }
             {
-              criteria = "LG Electronics LG ULTRAGEAR+ 307NTLE3H864";
+              criteria = "LG Electronics LG ULTRAGEAR+ 510RMKU22925";
               status = "enable";
               position = "0,0";
               scale = 1.5;
-              mode = "3840x2160@60";
+              mode = "3840x2160@144.050Hz";
             }
             {
               criteria = "LG Electronics LG ULTRAGEAR+ 408NTEP4T404";
               status = "enable";
               position = "2560,0";
               scale = 1.5;
-              mode = "3840x2160@60";
+              mode = "3840x2160@144.050Hz";
             }
           ];
         };
@@ -70,18 +70,18 @@
           name = "slime-kvm";
           outputs = [
             {
-              criteria = "LG Electronics LG ULTRAGEAR+ 307NTLE3H864";
+              criteria = "LG Electronics LG ULTRAGEAR+ 510RMKU22925";
               status = "enable";
               position = "0,0";
               scale = 1.5;
-              mode = "3840x2160@60";
+              mode = "3840x2160@144.050Hz";
             }
             {
               criteria = "LG Electronics LG ULTRAGEAR+ 408NTEP4T404";
               status = "enable";
               position = "2560,0";
               scale = 1.5;
-              mode = "3840x2160@60";
+              mode = "3840x2160@144.050Hz";
             }
           ];
         };
@@ -97,18 +97,18 @@
               status = "disable";
             }
             {
-              criteria = "LG Electronics LG ULTRAGEAR+ 307NTLE3H864";
+              criteria = "LG Electronics LG ULTRAGEAR+ 510RMKU22925";
               status = "enable";
               position = "0,0";
               scale = 1.5;
-              mode = "3840x2160@60";
+              mode = "3840x2160@144.050Hz";
             }
             {
               criteria = "LG Electronics LG ULTRAGEAR+ 408NTEP4T404";
               status = "enable";
               position = "2560,0";
               scale = 1.5;
-              mode = "3840x2160@60";
+              mode = "3840x2160@144.050Hz";
             }
           ];
         };

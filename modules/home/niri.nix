@@ -46,7 +46,7 @@
 
         border {
             width 4
-            active-color "#ffc87f"
+            active-color "#aa7744"
             inactive-color "#505050"
         }
 

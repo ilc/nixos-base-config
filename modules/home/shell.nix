@@ -229,7 +229,7 @@
       "--info=inline"
       "--prompt=' '"
       "--pointer='▶'"
-      "--color=bg+:#2d2d2d,fg+:#ffffff,hl:#ff6432,hl+:#ff55c8,prompt:#ff55c8,pointer:#ff55c8"
+      "--color=bg+:#1a1a1a,fg+:#dddddd,hl:#ff6432,hl+:#ff55c8,prompt:#ff55c8,pointer:#ff55c8"
     ];
   };
 

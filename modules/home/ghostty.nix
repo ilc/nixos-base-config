@@ -15,6 +15,10 @@
       background = "000000";
       foreground = "ffffff";
 
+      # OLED-friendly cursor: bar shape (less area than block), dimmer color
+      cursor-style = "bar";
+      cursor-color = "888888";
+
       # Colorblind-friendly red remapping
       palette = [
         "1=#ff6432"  # red → red-orange

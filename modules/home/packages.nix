@@ -90,9 +90,7 @@ in
 {
   home.packages = with pkgs; claudePackages ++ [
 
-    # Browsers
-    ungoogled-chromium
-    firefox-bin
+    # Browsers (chromium + firefox installed by programs.chromium / programs.firefox)
     tor-browser
 
     # 3D Printing
@@ -144,7 +142,7 @@ in
     libvirt
 
     # Terminal tools
-    tmux
+    # tmux installed via programs.tmux
     zellij
     htop
     # minicom  # broken: lrzsz fails with GCC 15

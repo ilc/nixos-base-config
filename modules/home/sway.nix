@@ -2,6 +2,15 @@
 { config, pkgs, lib, ... }:
 
 {
+  # Manual toggle (Super+T) as a fallback; main peek is via swaybar IPC.
+  home.file.".local/bin/waybar-toggle" = {
+    executable = true;
+    text = ''
+      #!${pkgs.bash}/bin/bash
+      ${pkgs.procps}/bin/pkill -USR1 -x .waybar-wrapped
+    '';
+  };
+
   wayland.windowManager.sway = {
     enable = true;
     systemd.enable = true;
@@ -113,7 +122,7 @@
         "${mod}+a" = "focus parent";
 
         # Toggle waybar
-        "${mod}+t" = "exec killall -SIGUSR1 waybar";
+        "${mod}+t" = "exec ~/.local/bin/waybar-toggle";
 
         # Lock screen
         "${mod}+Shift+z" = "exec swaylock --color '#000000'";
@@ -152,9 +161,15 @@
         };
       };
 
-      # Bar
+      # Bar — hide mode (OLED). Waybar honors this via "ipc": true in its config.
+      # Tap-and-release Super peeks the bar; combos like Super+T won't.
       bars = [{
         command = "waybar";
+        mode = "hide";
+        hiddenState = "hide";
+        extraConfig = ''
+          modifier Mod4
+        '';
       }];
 
       # Startup
@@ -173,6 +188,14 @@
 
       # Default border
       default_border pixel 2
+
+      # OLED-friendly border colors — very dim to minimize differential aging
+      # on the persistent stripe between side-by-side windows.
+      # format: border background text indicator child_border
+      client.focused          #553322 #000000 #cccccc #553322 #553322
+      client.focused_inactive #222222 #000000 #666666 #222222 #222222
+      client.unfocused        #111111 #000000 #555555 #111111 #111111
+      client.urgent           #553311 #000000 #cccccc #553311 #553311
     '';
   };
 

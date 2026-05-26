@@ -11,6 +11,10 @@
     ./waybar.nix
     ./ghostty.nix
     ./kanshi.nix
+    ./idle.nix
+    ./tmux.nix
+    ./firefox.nix
+    ./chromium.nix
     ./packages.nix
     ./pi.nix
   ];
@@ -31,8 +35,17 @@
     EDITOR = "nvim";
     # Disable pay-respects AI features
     _PR_AI_DISABLE = "";
+    # OLED: force GTK apps (incl. chromium chrome) to use dark theme
+    GTK_THEME = "Adwaita:dark";
   };
 
   # XDG directories
   xdg.enable = true;
+
+  # Tell portal-aware apps to prefer dark color scheme (OLED + chromium chrome)
+  dconf.settings = {
+    "org/gnome/desktop/interface" = {
+      color-scheme = "prefer-dark";
+    };
+  };
 }
