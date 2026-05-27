@@ -93,6 +93,10 @@ in
     # Browsers (chromium + firefox installed by programs.chromium / programs.firefox)
     tor-browser
 
+    # Color calibration (Calibrite Display Pro HL — udev rules in services.nix)
+    displaycal
+    argyllcms
+
     # 3D Printing
     bambu-studio
     orca-slicer

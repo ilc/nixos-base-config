@@ -48,11 +48,19 @@
     power-profiles-daemon.enable = true;
   };
 
-  # Udev rules for keyboards (Via, Vial)
+  # Udev rules: keyboards (Via, Vial)
   services.udev.packages = with pkgs; [
     vial
     via
   ];
+
+  # Calibrite Display Pro HL / X-Rite i1 Display Pro (USB 0765:5020).
+  # NixOS rejects argyllcms's packaged rules (they call usb_id by relative
+  # path), so write the rule directly. TAG+="uaccess" gives the logged-in
+  # user access via logind — no group membership needed.
+  services.udev.extraRules = ''
+    SUBSYSTEMS=="usb", ATTRS{idVendor}=="0765", ATTRS{idProduct}=="5020", MODE="0660", TAG+="uaccess"
+  '';
 
   # Flatpak support packages
   environment.systemPackages = with pkgs; [
