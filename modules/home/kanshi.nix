@@ -40,7 +40,10 @@
       }
 
       # Slime (AMD desktop) — no eDP, just the two LGs.
-      # Left = calibrated 503NTXR3M946, Right = new 510RMYA9R506.
+      # Left = 503NTXR3M946 (new replacement), Right = 510RMYA9R506 (eval,
+      # kept free). Original 510RMKU22925 returned to Amazon.
+      # Color: LG hardware calibration (in-panel) is the plan; software VCGT
+      # loader is being retired, so neither has a repo ICC going forward.
       # 144.050Hz: verified working on slime's link; matches the Windows-side
       # reliability choice (240 is capable but overkill).
       {
