@@ -20,7 +20,7 @@
               status = "disable";
             }
             {
-              criteria = "LG Electronics LG ULTRAGEAR+ 510RMKU22925";
+              criteria = "LG Electronics LG ULTRAGEAR+ 503NTXR3M946";
               status = "enable";
               position = "0,0";
               scale = 1.5;
@@ -40,7 +40,7 @@
       }
 
       # Slime (AMD desktop) — no eDP, just the two LGs.
-      # Left = calibrated 510RMKU22925, Right = new 510RMYA9R506.
+      # Left = calibrated 503NTXR3M946, Right = new 510RMYA9R506.
       # 144.050Hz: verified working on slime's link; matches the Windows-side
       # reliability choice (240 is capable but overkill).
       {
@@ -48,7 +48,7 @@
           name = "slime-kvm";
           outputs = [
             {
-              criteria = "LG Electronics LG ULTRAGEAR+ 510RMKU22925";
+              criteria = "LG Electronics LG ULTRAGEAR+ 503NTXR3M946";
               status = "enable";
               position = "0,0";
               scale = 1.5;
