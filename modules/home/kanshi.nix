@@ -27,17 +27,22 @@
               mode = "3840x2160@60Hz";
             }
             {
-              criteria = "LG Electronics LG ULTRAGEAR+ 408NTEP4T404";
+              criteria = "LG Electronics LG ULTRAGEAR+ 510RMYA9R506";
               status = "enable";
               position = "2560,0";
               scale = 1.5;
               mode = "3840x2160@60Hz";
             }
           ];
+          # Re-apply per-output ICC VCGT when this profile activates.
+          exec = "~/.local/bin/load-color-profiles";
         };
       }
 
       # Slime (AMD desktop) — no eDP, just the two LGs.
+      # Left = calibrated 510RMKU22925, Right = new 510RMYA9R506.
+      # 144.050Hz: verified working on slime's link; matches the Windows-side
+      # reliability choice (240 is capable but overkill).
       {
         profile = {
           name = "slime-kvm";
@@ -47,16 +52,18 @@
               status = "enable";
               position = "0,0";
               scale = 1.5;
-              mode = "3840x2160@60Hz";
+              mode = "3840x2160@144.050Hz";
             }
             {
-              criteria = "LG Electronics LG ULTRAGEAR+ 408NTEP4T404";
+              criteria = "LG Electronics LG ULTRAGEAR+ 510RMYA9R506";
               status = "enable";
               position = "2560,0";
               scale = 1.5;
-              mode = "3840x2160@60Hz";
+              mode = "3840x2160@144.050Hz";
             }
           ];
+          # Re-apply per-output ICC VCGT when this profile activates.
+          exec = "~/.local/bin/load-color-profiles";
         };
       }
 
@@ -73,6 +80,7 @@
               scale = if hostname == "thunder" then 2.0 else 1.75;
             }
           ];
+          exec = "~/.local/bin/load-color-profiles";
         };
       }
     ];

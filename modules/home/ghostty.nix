@@ -15,9 +15,15 @@
       background = "000000";
       foreground = "ffffff";
 
-      # OLED-friendly cursor: bar shape (less area than block), dimmer color
-      cursor-style = "bar";
-      cursor-color = "888888";
+      # Cursor: solid block, dimmed color. Block matches the convention
+      # (hollow = unfocused, solid = focused); a single cell at #bbbbbb is
+      # negligible OLED area vs the visibility win.
+      cursor-style = "block";
+      cursor-color = "bbbbbb";
+      # Shell integration forces a bar cursor at the prompt by default,
+      # overriding cursor-style. Disable just the cursor part of shell
+      # integration so our underline setting actually applies.
+      shell-integration-features = "no-cursor";
 
       # Colorblind-friendly red remapping
       palette = [

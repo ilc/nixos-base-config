@@ -58,8 +58,14 @@
   # NixOS rejects argyllcms's packaged rules (they call usb_id by relative
   # path), so write the rule directly. TAG+="uaccess" gives the logged-in
   # user access via logind — no group membership needed.
+  #
+  # Match the top-level usb_device node (SUBSYSTEM/ATTR singular + DEVTYPE),
+  # not parent devices (SUBSYSTEMS/ATTRS plural). The plural form can land
+  # the uaccess tag on the wrong node, so the ACL applies inconsistently on
+  # re-enumeration (e.g. after a KVM USB switch gives the meter a new node).
+  # ACTION=="add" ensures it fires on every (re)attach.
   services.udev.extraRules = ''
-    SUBSYSTEMS=="usb", ATTRS{idVendor}=="0765", ATTRS{idProduct}=="5020", MODE="0660", TAG+="uaccess"
+    ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0765", ATTR{idProduct}=="5020", MODE="0660", TAG+="uaccess"
   '';
 
   # Flatpak support packages

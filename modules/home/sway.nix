@@ -179,6 +179,12 @@
         { command = "systemctl --user start pipewire pipewire-media-session xdg-desktop-portal xdg-desktop-portal-wlr"; }
         { command = "blueman-applet"; }
         { command = "kanshi"; always = true; }
+        # Solid black wallpaper — without this, hidden waybar leaves ghost
+        # frames on the bottom strip when nothing else is painting that area.
+        { command = "swaybg -c '#000000'"; always = true; }
+        # Per-output ICC VCGT load — runs on every sway start.
+        # Kanshi also re-runs this on profile change (see kanshi.nix exec).
+        { command = "~/.local/bin/load-color-profiles"; always = true; }
       ];
     };
 
@@ -188,6 +194,10 @@
 
       # Default border
       default_border pixel 2
+
+      # 10-bit render path — VCGT/ICC corrections run at 10-bit precision,
+      # eliminating banding from heavy per-channel gamma corrections.
+      output * render_bit_depth 10
 
       # OLED-friendly border colors — very dim to minimize differential aging
       # on the persistent stripe between side-by-side windows.
