@@ -34,8 +34,6 @@
               mode = "3840x2160@60Hz";
             }
           ];
-          # Re-apply per-output ICC VCGT when this profile activates.
-          exec = "~/.local/bin/load-color-profiles";
         };
       }
 
@@ -65,8 +63,6 @@
               mode = "3840x2160@144.050Hz";
             }
           ];
-          # Re-apply per-output ICC VCGT when this profile activates.
-          exec = "~/.local/bin/load-color-profiles";
         };
       }
 
@@ -83,7 +79,6 @@
               scale = if hostname == "thunder" then 2.0 else 1.75;
             }
           ];
-          exec = "~/.local/bin/load-color-profiles";
         };
       }
     ];

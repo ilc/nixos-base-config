@@ -12,7 +12,6 @@
     ./ghostty.nix
     ./kanshi.nix
     ./idle.nix
-    ./color-calibration.nix
     ./tmux.nix
     ./firefox.nix
     ./chromium.nix

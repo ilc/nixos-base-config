@@ -182,9 +182,6 @@
         # Solid black wallpaper — without this, hidden waybar leaves ghost
         # frames on the bottom strip when nothing else is painting that area.
         { command = "swaybg -c '#000000'"; always = true; }
-        # Per-output ICC VCGT load — runs on every sway start.
-        # Kanshi also re-runs this on profile change (see kanshi.nix exec).
-        { command = "~/.local/bin/load-color-profiles"; always = true; }
       ];
     };
 
