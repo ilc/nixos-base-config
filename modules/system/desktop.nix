@@ -11,10 +11,9 @@
     };
   };
 
-  services.displayManager.gdm = {
-    enable = true;
-    wayland = true;
-  };
+  # Wayland is the default and only option in GNOME 50+; the `wayland`
+  # toggle was removed upstream.
+  services.displayManager.gdm.enable = true;
 
   # Sway
   programs.sway = {
