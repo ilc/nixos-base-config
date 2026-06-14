@@ -136,6 +136,7 @@ in {
 
         file=$(${pkgs.jq}/bin/jq -r --arg n "$active" '.[$n].file // empty' "$registry")
         ctx=$(${pkgs.jq}/bin/jq -r --arg n "$active" '.[$n].ctx // empty' "$registry")
+        np=$(${pkgs.jq}/bin/jq -r --arg n "$active" '.[$n].np // 1' "$registry")
         if [[ -z "$file" || -z "$ctx" ]]; then
           echo "Active model '$active' not found in $registry" >&2
           exit 0
@@ -150,12 +151,15 @@ in {
           exit 0
         fi
 
-        echo "Starting llama-server: active=$active file=$file ctx=$ctx flags=(''${extra_flags[*]})"
+        # ctx in the registry is per-slot; llama-server's -c is the total pool.
+        total_ctx=$(( ctx * np ))
+
+        echo "Starting llama-server: active=$active file=$file ctx=$ctx np=$np total=$total_ctx flags=(''${extra_flags[*]})"
         exec ${llama-cpp-mtp}/bin/llama-server \
           -m "$model_path" \
-          -ngl 99 -c "$ctx" -fa on \
+          -ngl 99 -c "$total_ctx" -fa on \
           --cache-reuse 256 -ctk q8_0 -ctv q8_0 \
-          -np 1 -t 16 \
+          -np "$np" -t 16 \
           "''${extra_flags[@]}" \
           --host 0.0.0.0 --port 8000
       '';

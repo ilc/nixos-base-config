@@ -4,6 +4,13 @@ Manages /var/lib/llama-server/registry.json (model metadata) and
 /var/lib/llama-server/active (which one is loaded). Generates pi's
 models.json from the registry on demand.
 
+Registry per-model fields:
+  file       GGUF filename in /var/lib/llama-server/models
+  ctx        per-slot context window (what each pi session sees)
+  np         parallel slots, optional, default 1 (llama-server -np)
+             total KV pool passed to llama-server is ctx * np
+  label, hf_repo, hf_quant, reasoning, flags  (passthrough)
+
 Sudo is used internally for writes to /var/lib/llama-server/* and for
 systemctl restart. User must be in wheel (NOPASSWD assumed).
 """
@@ -94,7 +101,9 @@ def cmd_list(args: argparse.Namespace) -> None:
         file_ok = (MODELS_DIR / meta["file"]).exists()
         status = "" if file_ok else "  [file missing]"
         ctx_str = f"ctx={meta.get('ctx', '?')}"
-        print(f"{marker} {name:<{width}} {ctx_str:<14} {meta.get('label', '')}{status}")
+        np = meta.get("np", 1)
+        slots_str = f"np={np}" if np != 1 else ""
+        print(f"{marker} {name:<{width}} {ctx_str:<14} {slots_str:<6} {meta.get('label', '')}{status}")
 
 
 def cmd_status(args: argparse.Namespace) -> None:
@@ -126,6 +135,8 @@ def cmd_register(args: argparse.Namespace) -> None:
         "ctx": args.ctx,
         "label": args.label or args.name,
     }
+    if args.np and args.np != 1:
+        entry["np"] = args.np
     if args.hf_repo:
         entry["hf_repo"] = args.hf_repo
     if args.reasoning:
@@ -134,7 +145,7 @@ def cmd_register(args: argparse.Namespace) -> None:
         entry["flags"] = list(args.flag)
     reg[args.name] = entry
     save_registry(reg)
-    print(f"Registered {args.name}: {src.name} (ctx={args.ctx})")
+    print(f"Registered {args.name}: {src.name} (ctx={args.ctx} np={args.np})")
 
 
 def cmd_set(args: argparse.Namespace) -> None:
@@ -144,6 +155,11 @@ def cmd_set(args: argparse.Namespace) -> None:
     entry = reg[args.name]
     if args.ctx is not None:
         entry["ctx"] = args.ctx
+    if args.np is not None:
+        if args.np == 1:
+            entry.pop("np", None)
+        else:
+            entry["np"] = args.np
     if args.label is not None:
         entry["label"] = args.label
     if args.reasoning is True:
@@ -302,7 +318,10 @@ def main() -> None:
     pr = sub.add_parser("register", help="register an existing GGUF (already in models dir)")
     pr.add_argument("file", help="filename in /var/lib/llama-server/models or absolute path")
     pr.add_argument("--name", required=True)
-    pr.add_argument("--ctx", type=int, default=65536)
+    pr.add_argument("--ctx", type=int, default=65536,
+                    help="per-slot context size (llama-server's -c is ctx*np)")
+    pr.add_argument("--np", type=int, default=1,
+                    help="parallel slots; total KV pool = ctx*np (default 1)")
     pr.add_argument("--label")
     pr.add_argument("--hf-repo", help="optional HF repo for provenance")
     pr.add_argument("--reasoning", action="store_true")
@@ -312,7 +331,8 @@ def main() -> None:
 
     ps = sub.add_parser("set", help="update metadata on a registered model")
     ps.add_argument("name")
-    ps.add_argument("--ctx", type=int)
+    ps.add_argument("--ctx", type=int, help="per-slot context size")
+    ps.add_argument("--np", type=int, help="parallel slots (1 removes the field)")
     ps.add_argument("--label")
     ps.add_argument("--reasoning", action="store_true")
     ps.add_argument("--no-reasoning", action="store_true")
