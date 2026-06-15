@@ -91,12 +91,21 @@ in {
         HOME = "/var/lib/llama-server";
       };
 
+      # Allow up to ~5 minutes of post-boot/switch retries (Vulkan-not-ready
+      # exit, see script) before systemd gives up. Default start-limit
+      # (5 starts in 10s) is too tight when GPU init is the dependency.
+      unitConfig = {
+        StartLimitBurst = 60;
+        StartLimitIntervalSec = 300;
+      };
+
       serviceConfig = {
         Type = "simple";
         User = "llama-server";
         Group = "llama-server";
         # Don't restart on clean exit (used to signal "nothing to load yet").
-        # Still restart on actual failures.
+        # Still restart on actual failures, including the Vulkan-not-ready
+        # exit emitted by the start script.
         Restart = "on-failure";
         RestartSec = 5;
         WorkingDirectory = "/var/lib/llama-server";
@@ -153,6 +162,16 @@ in {
 
         # ctx in the registry is per-slot; llama-server's -c is the total pool.
         total_ctx=$(( ctx * np ))
+
+        # Gate startup on Vulkan readiness. After a system switch (or boot)
+        # the DRM render node / mesa stack can take a moment to settle; if
+        # llama-server races ahead it falls back to CPU silently — ~20x
+        # slower for prompt processing. Exit non-fatal so Restart=on-failure
+        # retries every RestartSec until the GPU shows up.
+        if ! ${llama-cpp-mtp}/bin/llama-server --list-devices 2>&1 | grep -q '^[[:space:]]*Vulkan'; then
+          echo "Vulkan device not yet available — exiting for restart." >&2
+          exit 1
+        fi
 
         echo "Starting llama-server: active=$active file=$file ctx=$ctx np=$np total=$total_ctx flags=(''${extra_flags[*]})"
         exec ${llama-cpp-mtp}/bin/llama-server \
