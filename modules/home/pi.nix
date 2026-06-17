@@ -112,9 +112,9 @@ in {
           { id = "qwen";                name = "Qwen3.6 35B-A3B-MTP (MoE, fast daily)";       contextWindow = 262144; maxTokens = 16384; reasoning = true; }
           { id = "qwen-dense";          name = "Qwen3.6 27B (dense, slow but sharper)";       contextWindow = 262144; maxTokens = 16384; reasoning = true; }
           { id = "qwen-large";          name = "Qwen3-Next 80B-A3B Instruct (older but larger)"; contextWindow = 262144; maxTokens = 16384; }
-          { id = "gemma";               name = "Gemma 4 26B-A4B-it (MoE, alt fast)";     contextWindow = 262144; maxTokens = 16384; }
+          { id = "gemma";               name = "Gemma 4 26B-A4B-it (MoE, alt fast)";     contextWindow = 262144; maxTokens = 16384; reasoning = true; }
           { id = "gemma-nothink";       name = "Gemma 4 26B-A4B-it (no thinking)";       contextWindow = 262144; maxTokens = 16384; }
-          { id = "gemma-dense";         name = "Gemma 4 31B-it (dense, slow alt)";       contextWindow = 262144; maxTokens = 16384; }
+          { id = "gemma-dense";         name = "Gemma 4 31B-it (dense, slow alt)";       contextWindow = 262144; maxTokens = 16384; reasoning = true; }
           { id = "gemma-dense-nothink"; name = "Gemma 4 31B-it (dense, no thinking)";    contextWindow = 262144; maxTokens = 16384; }
         ];
       };
