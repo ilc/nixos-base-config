@@ -178,6 +178,11 @@ def cmd_set(args: argparse.Namespace) -> None:
 
 
 def cmd_fetch(args: argparse.Namespace) -> None:
+    # hf-transfer is bundled via the nix derivation. Enable it so downloads
+    # do parallel range requests instead of single-threaded transfer.
+    # Must be set before importing huggingface_hub for it to take effect.
+    import os
+    os.environ.setdefault("HF_HUB_ENABLE_HF_TRANSFER", "1")
     from huggingface_hub import snapshot_download
 
     name = args.name

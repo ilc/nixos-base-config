@@ -46,7 +46,7 @@ let
   });
 
   slime-model = pkgs.writers.writePython3Bin "slime-model" {
-    libraries = with pkgs.python313Packages; [ huggingface-hub ];
+    libraries = with pkgs.python313Packages; [ huggingface-hub hf-transfer ];
     flakeIgnore = [ "E501" "E402" "E741" "W503" "E265" "F401" ];
   } (builtins.readFile ./slime-model.py);
 
