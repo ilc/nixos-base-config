@@ -98,7 +98,6 @@ in
     argyllcms
 
     # 3D Printing
-    bambu-studio
     orca-slicer
 
     # Keyboard tools (QMK)
