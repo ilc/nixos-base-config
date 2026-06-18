@@ -98,6 +98,13 @@ in {
   # On slime: `slime-model gen-pi-config --out ~/.pi/agent/models.json` is
   # the live source of truth. On thunder/bear: cp the template into place.
   # Keep this in sync with slime's registry when you change the lineup.
+  # Two providers, same backend, different reasoning conventions:
+  #   slime         → qwen-chat-template (qwen/gemma; enable_thinking via chat_template_kwargs)
+  #   slime-openai  → OpenAI reasoning_effort (gpt-oss harmony; top-level reasoning_effort field)
+  # Pi 0.79.1 has no "harmony" thinkingFormat literal — gpt-oss is wired via the default
+  # OpenAI-style branch (no thinkingFormat + supportsReasoningEffort = true). llama-server's
+  # default --jinja + --reasoning-format auto handles harmony template + analysis-channel
+  # extraction into message.reasoning_content automatically.
   home.file.".pi/agent/models.json.template".text = builtins.toJSON {
     providers = {
       slime = {
@@ -114,6 +121,18 @@ in {
           { id = "qwen-large";          name = "Qwen3-Next 80B-A3B Instruct (older but larger)"; contextWindow = 262144; maxTokens = 16384; }
           { id = "gemma";               name = "Gemma 4 26B-A4B-it (MoE, alt fast)";     contextWindow = 262144; maxTokens = 16384; reasoning = true; }
           { id = "gemma-dense";         name = "Gemma 4 31B-it (dense, slow alt)";       contextWindow = 262144; maxTokens = 16384; reasoning = true; }
+        ];
+      };
+      slime-openai = {
+        baseUrl = "http://slime:8000/v1";
+        api = "openai-completions";
+        apiKey = "unused";
+        compat = {
+          supportsDeveloperRole = false;
+          supportsReasoningEffort = true;
+        };
+        models = [
+          { id = "gpt-oss";             name = "GPT-OSS 120B (OpenAI MoE, MXFP4 native)"; contextWindow = 131072; maxTokens = 16384; reasoning = true; }
         ];
       };
     };

@@ -170,6 +170,11 @@ def cmd_set(args: argparse.Namespace) -> None:
         entry["flags"] = list(args.flag)
     if args.no_flags:
         entry.pop("flags", None)
+    if args.pi_provider is not None:
+        if args.pi_provider == "slime":
+            entry.pop("pi_provider", None)  # default, leave implicit
+        else:
+            entry["pi_provider"] = args.pi_provider
     reg[args.name] = entry
     save_registry(reg)
     print(f"Updated {args.name}: {entry}")
@@ -212,14 +217,26 @@ def cmd_fetch(args: argparse.Namespace) -> None:
             sys.exit(f"No GGUF matched pattern '{pattern}' in {args.repo}")
         if len(ggufs) > 1 and not args.preserve_name:
             sys.exit(f"Multiple GGUFs matched; pass --preserve-name and pick later: {[g.name for g in ggufs]}")
-        src = ggufs[0]
-        target_name = src.name if args.preserve_name else f"{name}.gguf"
-        dst = MODELS_DIR / target_name
-        print(f"Installing as {dst}")
         sudo("mkdir", "-p", str(MODELS_DIR))
-        sudo("mv", str(src), str(dst))
-        sudo("chown", OWNER, str(dst))
-        sudo("chmod", "0644", str(dst))
+        if args.preserve_name:
+            # Multi-shard GGUFs (e.g. foo-00001-of-00003.gguf) require ALL shards
+            # alongside the first; llama.cpp auto-discovers the rest from shard 1's
+            # metadata. Move every matched file, keep registry pointed at shard 1.
+            for g in ggufs:
+                dst_i = MODELS_DIR / g.name
+                print(f"Installing as {dst_i}")
+                sudo("mv", str(g), str(dst_i))
+                sudo("chown", OWNER, str(dst_i))
+                sudo("chmod", "0644", str(dst_i))
+            target_name = ggufs[0].name
+        else:
+            src = ggufs[0]
+            target_name = f"{name}.gguf"
+            dst = MODELS_DIR / target_name
+            print(f"Installing as {dst}")
+            sudo("mv", str(src), str(dst))
+            sudo("chown", OWNER, str(dst))
+            sudo("chmod", "0644", str(dst))
 
     reg = load_registry()
     entry = {
@@ -277,7 +294,11 @@ def cmd_remove(args: argparse.Namespace) -> None:
 
 def cmd_gen_pi_config(args: argparse.Namespace) -> None:
     reg = load_registry()
-    models = []
+    # Split models by pi provider. Models with `pi_provider` field go there;
+    # default is "slime" (qwen/gemma chat-template-kwargs reasoning).
+    # Currently used: "slime-openai" for gpt-oss and other models that want
+    # standard OpenAI reasoning_effort wiring instead of qwen-chat-template.
+    grouped: dict[str, list] = {"slime": [], "slime-openai": []}
     for name, meta in sorted(reg.items()):
         m = {
             "id": name,
@@ -287,21 +308,34 @@ def cmd_gen_pi_config(args: argparse.Namespace) -> None:
         }
         if meta.get("reasoning"):
             m["reasoning"] = True
-        models.append(m)
-    cfg = {
-        "providers": {
-            "slime": {
-                "baseUrl": args.base_url,
-                "api": "openai-completions",
-                "apiKey": "unused",
-                "compat": {
-                    "supportsDeveloperRole": False,
-                    "thinkingFormat": "qwen-chat-template",
-                },
-                "models": models,
+        prov = meta.get("pi_provider", "slime")
+        if prov not in grouped:
+            grouped[prov] = []
+        grouped[prov].append(m)
+    providers = {}
+    if grouped["slime"]:
+        providers["slime"] = {
+            "baseUrl": args.base_url,
+            "api": "openai-completions",
+            "apiKey": "unused",
+            "compat": {
+                "supportsDeveloperRole": False,
+                "thinkingFormat": "qwen-chat-template",
             },
-        },
-    }
+            "models": grouped["slime"],
+        }
+    if grouped["slime-openai"]:
+        providers["slime-openai"] = {
+            "baseUrl": args.base_url,
+            "api": "openai-completions",
+            "apiKey": "unused",
+            "compat": {
+                "supportsDeveloperRole": False,
+                "supportsReasoningEffort": True,
+            },
+            "models": grouped["slime-openai"],
+        }
+    cfg = {"providers": providers}
     out = json.dumps(cfg, indent=2) + "\n"
     if args.out:
         Path(args.out).write_text(out)
@@ -345,6 +379,9 @@ def main() -> None:
                     help="extra arg to pass to llama-server (repeatable, replaces existing)")
     ps.add_argument("--no-flags", action="store_true",
                     help="clear all extra flags")
+    ps.add_argument("--pi-provider",
+                    help="pi provider group: 'slime' (qwen-chat-template, default) "
+                         "or 'slime-openai' (OpenAI reasoning_effort, for gpt-oss)")
 
     pf = sub.add_parser("fetch", help="download from HF and register")
     pf.add_argument("repo", help="HF repo, e.g. unsloth/foo-GGUF")
