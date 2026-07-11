@@ -46,6 +46,9 @@
 
     # Power management
     power-profiles-daemon.enable = true;
+
+    # Tailscale mesh VPN. `tailscale up` (once, per host) does the auth.
+    tailscale.enable = true;
   };
 
   # Udev rules: keyboards (Via, Vial)
