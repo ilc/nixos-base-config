@@ -35,11 +35,24 @@
   hardware.enableRedistributableFirmware = true;
   hardware.bluetooth.enable = true;
 
-  # Use hardware.graphics instead of deprecated hardware.opengl
+  # Use hardware.graphics instead of deprecated hardware.opengl.
+  # Intel hosts get iHD + oneVPL for VAAPI. Slime (Strix Halo / AMD) uses
+  # mesa's radeonsi VAAPI which ships with mesa via hardware.graphics.enable —
+  # do not shove Intel drivers into its closure.
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
+    extraPackages = lib.optionals (hostname == "thunder" || hostname == "bear")
+      (with pkgs; [
+        intel-media-driver     # iHD; Gen9+ incl. Meteor Lake
+        vpl-gpu-rt             # Intel oneVPL runtime (AV1/HEVC on Xe/Arc)
+        libvdpau-va-gl         # VDPAU→VAAPI shim for legacy consumers
+      ]);
   };
+
+  # Point libva at iHD explicitly on Intel hosts.
+  environment.sessionVariables.LIBVA_DRIVER_NAME = lib.mkIf
+    (hostname == "thunder" || hostname == "bear") "iHD";
 
   # Boot configuration (common to all hosts)
   boot = {
@@ -113,6 +126,7 @@
       smartmontools # S.M.A.R.T. disk monitoring
       nvme-cli      # NVMe management
       ethtool       # network interface info
+      libva-utils   # vainfo (VAAPI driver probe)
 
       # System debugging
       strace
