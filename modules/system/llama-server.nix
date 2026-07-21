@@ -46,7 +46,13 @@ let
   });
 
   slime-model = pkgs.writers.writePython3Bin "slime-model" {
-    libraries = with pkgs.python313Packages; [ huggingface-hub hf-transfer ];
+    # Track pkgs.python3 (whatever the current nixpkgs default is), not a
+    # pinned python313Packages — writePython3Bin uses pkgs.python3 for the
+    # interpreter shebang, so pinning the library set to a different minor
+    # (e.g. 313 after nixpkgs bumped default to 314) leaves the libs
+    # invisible to the wrapped script's python. Manifests as
+    # ModuleNotFoundError: No module named 'huggingface_hub'.
+    libraries = with pkgs.python3Packages; [ huggingface-hub hf-transfer ];
     flakeIgnore = [ "E501" "E402" "E741" "W503" "E265" "F401" ];
   } (builtins.readFile ./slime-model.py);
 
