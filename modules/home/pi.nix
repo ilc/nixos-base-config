@@ -93,6 +93,17 @@ let
     name = "oc-yolo";
     agentPkg = pkgs.opencode;
     agentBin = "opencode";
+    # Bind opencode's config/state/cache dirs at their REAL paths inside
+    # the sandbox (not /sandbox/... like pi does). Opencode resolves these
+    # via getpwuid, not $HOME, so /home/ira/.config/opencode is what it
+    # actually opens — putting binds under /sandbox is invisible to it.
+    #   ~/.config/opencode      — opencode.json (providers, models)
+    #   ~/.local/share/opencode — sqlite db, session logs, auth
+    #   ~/.cache/opencode       — cached provider metadata (models.json)
+    # bwrap creates the parent directory tree for these binds, so
+    # /home/ira/ doesn't need to exist in the sandbox otherwise.
+    preHook = ''mkdir -p "$HOME/.config/opencode" "$HOME/.local/share/opencode" "$HOME/.cache/opencode"'';
+    extraBwrapArgs = ''--bind "$HOME/.config/opencode" "$HOME/.config/opencode" --bind "$HOME/.local/share/opencode" "$HOME/.local/share/opencode" --bind "$HOME/.cache/opencode" "$HOME/.cache/opencode"'';
   };
 
   # Benchmark sweep — runs on slime against locally installed models.
