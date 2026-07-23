@@ -212,6 +212,9 @@ in {
   # Keep this in sync with slime's registry when you change the lineup.
   home.file.".config/opencode/opencode.json.template".text = builtins.toJSON {
     "$schema" = "https://opencode.ai/config.json";
+    # Disable opencode's built-in cloud catalog — accidents would send
+    # prompts off-box. Only slime providers remain.
+    disabled_providers = [ "opencode" ];
     provider = {
       slime = {
         npm = "@ai-sdk/openai-compatible";

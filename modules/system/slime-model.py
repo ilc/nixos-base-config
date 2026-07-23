@@ -380,7 +380,13 @@ def cmd_gen_oc_config(args: argparse.Namespace) -> None:
             "options": {"baseURL": args.base_url, "apiKey": "unused"},
             "models": models,
         }
-    cfg = {"$schema": "https://opencode.ai/config.json", "provider": providers}
+    cfg = {
+        "$schema": "https://opencode.ai/config.json",
+        # Disable opencode's built-in cloud model catalog — accidents
+        # would send prompts off-box. Only slime providers remain.
+        "disabled_providers": ["opencode"],
+        "provider": providers,
+    }
     out = json.dumps(cfg, indent=2) + "\n"
     if args.out:
         Path(args.out).write_text(out)
