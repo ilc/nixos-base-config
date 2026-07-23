@@ -97,6 +97,10 @@ def cmd_list(args: argparse.Namespace) -> None:
         return
     width = max(len(k) for k in reg) + 1
     for name, meta in sorted(reg.items()):
+        # Skip drafter-only entries — they're referenced via -md by other
+        # models, not runnable as inference targets themselves.
+        if name.endswith("-draft") or name.endswith("-drafter"):
+            continue
         marker = "*" if name == active else " "
         file_ok = (MODELS_DIR / meta["file"]).exists()
         status = "" if file_ok else "  [file missing]"
@@ -300,6 +304,10 @@ def cmd_gen_pi_config(args: argparse.Namespace) -> None:
     # standard OpenAI reasoning_effort wiring instead of qwen-chat-template.
     grouped: dict[str, list] = {"slime": [], "slime-openai": []}
     for name, meta in sorted(reg.items()):
+        # Skip drafter-only entries — they're referenced via -md by other
+        # models, not runnable as inference targets themselves.
+        if name.endswith("-draft") or name.endswith("-drafter"):
+            continue
         m = {
             "id": name,
             "name": meta.get("label", name),
@@ -336,6 +344,43 @@ def cmd_gen_pi_config(args: argparse.Namespace) -> None:
             "models": grouped["slime-openai"],
         }
     cfg = {"providers": providers}
+    out = json.dumps(cfg, indent=2) + "\n"
+    if args.out:
+        Path(args.out).write_text(out)
+        print(f"Wrote {args.out}", file=sys.stderr)
+    else:
+        sys.stdout.write(out)
+
+
+def cmd_gen_oc_config(args: argparse.Namespace) -> None:
+    """Emit opencode.json from the registry. Mirrors gen_pi_config's provider
+    split (slime / slime-openai) but uses opencode's schema — @ai-sdk/openai-
+    compatible driver, models keyed by id, limit.{context,output}."""
+    reg = load_registry()
+    grouped: dict[str, dict] = {"slime": {}, "slime-openai": {}}
+    for name, meta in sorted(reg.items()):
+        # Skip drafter-only entries — they're referenced via -md by other
+        # models, not runnable as inference targets themselves.
+        if name.endswith("-draft") or name.endswith("-drafter"):
+            continue
+        prov = meta.get("pi_provider", "slime")
+        if prov not in grouped:
+            grouped[prov] = {}
+        grouped[prov][name] = {
+            "name": meta.get("label", name),
+            "limit": {"context": meta["ctx"], "output": 16384},
+        }
+    providers = {}
+    for prov_name, models in grouped.items():
+        if not models:
+            continue
+        providers[prov_name] = {
+            "npm": "@ai-sdk/openai-compatible",
+            "name": prov_name,
+            "options": {"baseURL": args.base_url, "apiKey": "unused"},
+            "models": models,
+        }
+    cfg = {"$schema": "https://opencode.ai/config.json", "provider": providers}
     out = json.dumps(cfg, indent=2) + "\n"
     if args.out:
         Path(args.out).write_text(out)
@@ -405,6 +450,10 @@ def main() -> None:
     pg.add_argument("--base-url", default="http://slime:8000/v1")
     pg.add_argument("--out", help="write to file instead of stdout")
 
+    poc = sub.add_parser("gen-oc-config", help="emit opencode.json from registry")
+    poc.add_argument("--base-url", default="http://slime:8000/v1")
+    poc.add_argument("--out", help="write to file instead of stdout")
+
     args = p.parse_args()
     handlers = {
         "list": cmd_list,
@@ -415,6 +464,7 @@ def main() -> None:
         "use": cmd_use,
         "remove": cmd_remove,
         "gen-pi-config": cmd_gen_pi_config,
+        "gen-oc-config": cmd_gen_oc_config,
     }
     handlers[args.cmd](args)
 
