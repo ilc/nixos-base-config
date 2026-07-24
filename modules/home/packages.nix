@@ -152,6 +152,12 @@ in
     mbuffer
     file
     jq
+    # Structural code search — agent-friendly CLIs for pattern-based
+    # queries over parsed source. ast-grep is the daily driver (natural
+    # pattern language, rewrite support); tree-sitter is the substrate
+    # for the rare case ast-grep can't express.
+    ast-grep
+    tree-sitter
     lsof
     killall
     usbutils
