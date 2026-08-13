@@ -131,7 +131,7 @@ let
       } > "$OUT"
 
       shopt -s nullglob
-      for model in "$MODELS_DIR"/qwen3.6-35b-a3b-mtp-*.gguf "$MODELS_DIR"/qwen3.6-27b-mtp-*.gguf; do
+      for model in "$MODELS_DIR"/gemma-4-*.gguf; do
         [[ -f "$model" ]] || continue
         name="$(basename "$model")"
         echo "=== $name ===" | tee -a "$OUT"
@@ -184,9 +184,6 @@ in {
           thinkingFormat = "qwen-chat-template";
         };
         models = [
-          { id = "qwen";                name = "Qwen3.6 35B-A3B-MTP (MoE, fast daily)";       contextWindow = 262144; maxTokens = 16384; reasoning = true; }
-          { id = "qwen-dense";          name = "Qwen3.6 27B-MTP (dense, sharper, ~35 t/s)";   contextWindow = 262144; maxTokens = 16384; reasoning = true; }
-          { id = "qwen-large";          name = "Qwen3-Next 80B-A3B Instruct (older but larger)"; contextWindow = 262144; maxTokens = 16384; }
           { id = "gemma";               name = "Gemma 4 26B-A4B-it (MoE, alt fast)";     contextWindow = 262144; maxTokens = 16384; reasoning = true; }
           { id = "gemma-dense";         name = "Gemma 4 31B-it (dense, slow alt)";       contextWindow = 262144; maxTokens = 16384; reasoning = true; }
         ];
@@ -224,12 +221,6 @@ in {
           apiKey = "unused";
         };
         models = {
-          qwen           = { name = "Qwen3.6 35B-A3B-MTP (MoE, fast daily)";     limit = { context = 262144; output = 16384; }; };
-          qwen-mxfp4     = { name = "Qwen3.6 35B-A3B MXFP4 (fastest MoE)";       limit = { context = 262144; output = 16384; }; };
-          qwen-dense     = { name = "Qwen3.6 27B-MTP (dense, sharper)";          limit = { context = 262144; output = 16384; }; };
-          qwen-dense-ud  = { name = "Qwen3.6 27B UD-Q4_K_XL (better MTP heads)"; limit = { context = 262144; output = 16384; }; };
-          qwen-large     = { name = "Qwen3-Next 80B-A3B Instruct";               limit = { context = 262144; output = 16384; }; };
-          qwen-coder-next = { name = "Qwen3-Coder-Next";                          limit = { context = 262144; output = 16384; }; };
           gemma          = { name = "Gemma 4 26B-A4B-it (MoE)";                  limit = { context = 262144; output = 16384; }; };
           gemma-mxfp4    = { name = "Gemma 4 26B-A4B MXFP4 + MTP drafter";       limit = { context = 262144; output = 16384; }; };
           gemma-dense    = { name = "Gemma 4 31B-it (dense) + MTP drafter";      limit = { context = 262144; output = 16384; }; };
