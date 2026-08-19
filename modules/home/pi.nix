@@ -70,6 +70,10 @@ let
           --setenv HOME /sandbox \
           --setenv PATH "$PATH" \
           --setenv TERM "''${TERM:-xterm-256color}" \
+          --setenv TMPDIR /tmp \
+          --setenv TEMPDIR /tmp \
+          --setenv TMP /tmp \
+          --setenv TEMP /tmp \
           "''${dbus_env[@]}" \
           ${extraBwrapArgs} \
           --share-net \

@@ -76,6 +76,10 @@ let
       --setenv=SSH_AUTH_SOCK="$SSH_SOCK" \
       --setenv=GIT_SSH_COMMAND="ssh -F /dev/null -o UserKnownHostsFile=$HOME/.ssh/known_hosts" \
       --setenv=PATH="/etc/profiles/per-user/$USER/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin" \
+      --setenv=TMPDIR=/tmp \
+      --setenv=TEMPDIR=/tmp \
+      --setenv=TMP=/tmp \
+      --setenv=TEMP=/tmp \
       -- ${pkgs.claude-code}/bin/claude --dangerously-skip-permissions --permission-mode bypassPermissions "''${CLAUDE_ARGS[@]}"
   '';
 
