@@ -54,6 +54,11 @@ let
     echo "  SSH Agent: $SSH_SOCK"
     echo ""
 
+    # Defense-in-depth for CC cross-session peer messaging: even with the
+    # managed-tier deny of ListAgents/SendMessage, blind the local discovery
+    # (~/.claude/sessions) and delivery (/run/user/$UID/cc-socks) paths so a
+    # future CC tool RENAME that slips past the name-keyed deny still cannot
+    # re-open the local transport for the GPL/clean-room sessions run here.
     exec ${pkgs.systemd}/bin/systemd-run --user --pty --same-dir \
       --unit="claude-yolo-$$" \
       --description="Claude Code (sandboxed)" \
@@ -71,6 +76,8 @@ let
       --property=BindPaths="$HOME/.local/share/containers" \
       --property=BindPaths="/run/user/$UID_NUM/containers" \
       --property=BindPaths="$SSH_SOCK" \
+      --property=TemporaryFileSystem="$HOME/.claude/sessions:mode=0700" \
+      --property=TemporaryFileSystem="/run/user/$UID_NUM/cc-socks:mode=0700" \
       --property=ProtectSystem=strict \
       --property=PrivateUsers=false \
       --setenv=SSH_AUTH_SOCK="$SSH_SOCK" \
