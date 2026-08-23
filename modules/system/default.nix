@@ -8,6 +8,7 @@
     ./virtualization.nix
     ./services.nix
     ./llama-server.nix
+    ./claude-code.nix
   ];
 
   # Core system settings

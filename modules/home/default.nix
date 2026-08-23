@@ -17,6 +17,7 @@
     ./chromium.nix
     ./packages.nix
     ./pi.nix
+    ./cache-capture.nix
   ];
 
   # Core home-manager settings
