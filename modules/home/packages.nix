@@ -101,8 +101,9 @@ in
 {
   home.packages = with pkgs; claudePackages ++ [
 
-    # AI dev tools (agentic IDE — Google Antigravity; unfree, allowUnfree set in modules/system)
-    antigravity-ide
+    # AI dev tools (Google Antigravity; unfree, allowUnfree set in modules/system)
+    antigravity-ide  # GUI IDE
+    antigravity-cli  # Go-based TUI agent client (binary: `agy`)
 
     # Browsers (chromium + firefox installed by programs.chromium / programs.firefox)
     tor-browser
