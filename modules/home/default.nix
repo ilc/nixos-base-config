@@ -34,6 +34,10 @@
   # Session variables
   home.sessionVariables = {
     EDITOR = "nvim";
+    # Allow unfree in impure CLI eval: channel commands (nix-shell/-build/-env)
+    # and `--impure` flake commands. Pure `nix run nixpkgs#unfree` still needs
+    # --impure (flakes ignore env + config.nix). Paired with config.nix below.
+    NIXPKGS_ALLOW_UNFREE = "1";
     # Disable pay-respects AI features
     _PR_AI_DISABLE = "";
     # OLED: force GTK apps (incl. chromium chrome) to use dark theme
@@ -42,6 +46,12 @@
 
   # XDG directories
   xdg.enable = true;
+
+  # Durable unfree for the Nix CLI's impure eval: the canonical user config file,
+  # honored by channel commands (nix-shell -p / nix-build / nix-env). Pure flake
+  # commands (nix run nixpkgs#unfree) do not read it — they need --impure or a
+  # registry-override flake; see NIXPKGS_ALLOW_UNFREE above.
+  xdg.configFile."nixpkgs/config.nix".text = "{ allowUnfree = true; }\n";
 
   # Tell portal-aware apps to prefer dark color scheme (OLED + chromium chrome)
   dconf.settings = {

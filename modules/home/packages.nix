@@ -101,6 +101,9 @@ in
 {
   home.packages = with pkgs; claudePackages ++ [
 
+    # AI dev tools (agentic IDE — Google Antigravity; unfree, allowUnfree set in modules/system)
+    antigravity-ide
+
     # Browsers (chromium + firefox installed by programs.chromium / programs.firefox)
     tor-browser
 
@@ -198,6 +201,7 @@ in
 
     # Security
     yubioath-flutter
+    bubblewrap  # bwrap — unprivileged sandbox (also used by modules/home/pi.nix wrappers)
 
     # Screenshots/Screen recording
     linuxPackages.v4l2loopback.bin
