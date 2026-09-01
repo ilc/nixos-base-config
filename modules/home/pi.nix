@@ -1,4 +1,5 @@
-# pi agent harness (earendil-works/pi) + sandboxed pi-yolo wrapper.
+# pi agent harness (earendil-works/pi) + the bwrap-sandboxed *-yolo wrappers
+# (pi-yolo, oc-yolo, agy-yolo) built from the shared mkYolo factory.
 # Available on all hosts. Model server lives on slime; thunder/bear are clients.
 { config, pkgs, lib, hostname, ... }:
 
@@ -11,7 +12,7 @@ let
   # org.freedesktop.portal.Desktop), nothing else. Blocks direct access to
   # secrets service, systemd user bus, notifications daemon, and any other
   # session-bus attack surface a compromised agent could pivot through.
-  mkYolo = { name, agentPkg, agentBin, preHook ? "", extraBwrapArgs ? "" }:
+  mkYolo = { name, agentPkg, agentBin, preHook ? "", extraBwrapArgs ? "", agentArgs ? "" }:
     pkgs.writeShellApplication {
       inherit name;
       runtimeInputs = with pkgs; [ bubblewrap xdg-dbus-proxy agentPkg ];
@@ -79,7 +80,7 @@ let
           --share-net \
           --die-with-parent \
           --new-session \
-          ${agentPkg}/bin/${agentBin} "$@"
+          ${agentPkg}/bin/${agentBin} ${agentArgs} "$@"
       '';
     };
 
@@ -108,6 +109,23 @@ let
     # /home/ira/ doesn't need to exist in the sandbox otherwise.
     preHook = ''mkdir -p "$HOME/.config/opencode" "$HOME/.local/share/opencode" "$HOME/.cache/opencode"'';
     extraBwrapArgs = ''--bind "$HOME/.config/opencode" "$HOME/.config/opencode" --bind "$HOME/.local/share/opencode" "$HOME/.local/share/opencode" --bind "$HOME/.cache/opencode" "$HOME/.cache/opencode"'';
+  };
+
+  agy-yolo = mkYolo {
+    name = "agy-yolo";
+    agentPkg = pkgs.antigravity-cli;
+    agentBin = "agy";
+    # agy (Go) resolves state via $HOME (verified), keeping everything under
+    # ~/.gemini — auth/Google login, config, conversations, MCP. Share the real
+    # dir into the sandbox HOME (pi-yolo pattern) so agy-yolo reuses the same
+    # login as the IDE/CLI instead of re-authing per project. Its regenerable
+    # ~/.cache (playwright-go browser, etc.) is intentionally left per-sandbox.
+    preHook = ''mkdir -p "$HOME/.gemini"'';
+    extraBwrapArgs = ''--bind "$HOME/.gemini" /sandbox/.gemini'';
+    # The point of -yolo: auto-approve every tool call. Safe because the bwrap
+    # filesystem sandbox is the real boundary, not agy's own prompts. Mirrors
+    # claude-yolo's --dangerously-skip-permissions.
+    agentArgs = "--dangerously-skip-permissions";
   };
 
   # Benchmark sweep — runs on slime against locally installed models.
@@ -157,6 +175,7 @@ in {
     pi-yolo
     opencode
     oc-yolo
+    agy-yolo
   ] ++ lib.optionals (hostname == "slime") [
     llama-bench-sweep
   ];
