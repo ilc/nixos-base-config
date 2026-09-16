@@ -17,6 +17,17 @@
   # Nix settings
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nix.settings.auto-optimise-store = true;
+
+  # thunder is RAM-tight for builds (Intel 155H, 16C/22T, 32GB but often only
+  # ~16GB free under JetBrains + agents) and nixos-rebuild OOM'd it: nix's
+  # default max-jobs=auto fires a dozen parallel compiles into contended RAM.
+  # Cap parallelism there and add a zram safety net so a rebuild can't take the
+  # box down. slime/bear are unconstrained. Override higher on the CLI when the
+  # box is idle (e.g. `--max-jobs 4 --cores 12`), or offload with `--build-host
+  # slime`.
+  nix.settings.max-jobs = lib.mkIf (hostname == "thunder") 1;  # one derivation at a time — no parallel heavy compiles
+  nix.settings.cores = lib.mkIf (hostname == "thunder") 4;     # threads within a build; bounds a single big compile/link
+  zramSwap.enable = lib.mkIf (hostname == "thunder") true;     # ~50% of RAM as compressed swap — OOM headroom under load
   nix.gc = {
     automatic = true;
     dates = "weekly";
