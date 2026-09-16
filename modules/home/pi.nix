@@ -1,5 +1,5 @@
 # pi agent harness (earendil-works/pi) + the bwrap-sandboxed *-yolo wrappers
-# (pi-yolo, oc-yolo, agy-yolo) built from the shared mkYolo factory.
+# (pi-yolo, oc-yolo, agy-yolo, codex-yolo) built from the shared mkYolo factory.
 # Available on all hosts. Model server lives on slime; thunder/bear are clients.
 { config, pkgs, lib, hostname, ... }:
 
@@ -128,6 +128,24 @@ let
     agentArgs = "--dangerously-skip-permissions";
   };
 
+  codex-yolo = mkYolo {
+    name = "codex-yolo";
+    agentPkg = pkgs.codex;
+    agentBin = "codex";
+    # codex (Rust) resolves state via $HOME (verified), keeping auth + config
+    # under ~/.codex (ChatGPT-subscription login via `codex login`, config.toml,
+    # sessions). Share the real dir into the sandbox HOME (pi-yolo pattern) so
+    # codex-yolo reuses the same login instead of re-authing per project.
+    preHook = ''mkdir -p "$HOME/.codex"'';
+    extraBwrapArgs = ''--bind "$HOME/.codex" /sandbox/.codex'';
+    # codex's flag for externally-sandboxed use: skip its approval prompts AND
+    # its own internal (landlock/seccomp) sandbox, because the bwrap fs sandbox
+    # is the real boundary. codex's own help says this flag is "intended solely
+    # for environments that are externally sandboxed" — exactly this. Mirrors
+    # claude-yolo/agy-yolo.
+    agentArgs = "--dangerously-bypass-approvals-and-sandbox";
+  };
+
   # Benchmark sweep — runs on slime against locally installed models.
   llama-bench-sweep = pkgs.writeShellApplication {
     name = "llama-bench-sweep";
@@ -176,6 +194,7 @@ in {
     opencode
     oc-yolo
     agy-yolo
+    codex-yolo
   ] ++ lib.optionals (hostname == "slime") [
     llama-bench-sweep
   ];

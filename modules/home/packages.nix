@@ -101,9 +101,10 @@ in
 {
   home.packages = with pkgs; claudePackages ++ [
 
-    # AI dev tools (Google Antigravity; unfree, allowUnfree set in modules/system)
-    antigravity-ide  # GUI IDE
-    antigravity-cli  # Go-based TUI agent client (binary: `agy`)
+    # AI dev tools
+    antigravity-ide  # Google Antigravity — GUI IDE (unfree; allowUnfree set in modules/system)
+    antigravity-cli  # Google Antigravity — Go TUI agent client (binary: `agy`)
+    codex            # OpenAI Codex CLI — `codex login` = Sign in with ChatGPT (Team plan), no API key
 
     # Browsers (chromium + firefox installed by programs.chromium / programs.firefox)
     tor-browser
