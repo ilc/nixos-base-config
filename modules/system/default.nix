@@ -112,6 +112,7 @@
     systemPackages = with pkgs; [
       vim
       neovim
+      git
       man-pages
       man-pages-posix
       pcscliteWithPolkit.out
