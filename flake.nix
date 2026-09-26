@@ -60,10 +60,21 @@
         };
       };
 
+      # Host classes — single source of truth (consumed via specialArgs below).
+      # Intel hosts get iHD/VAAPI drivers + thermald; RAM-tight build boxes
+      # (16-32GB) get the compile throttle. AMD/big hosts (slime, kraken) are in
+      # neither. Add a new host to the relevant list(s) here — nowhere else.
+      intelHosts = [ "thunder" "bear" "owl" ];
+      ramTightHosts = [ "thunder" "owl" ];
+
       # Helper function to create a NixOS configuration for a host
       mkHost = hostname: nixpkgs.lib.nixosSystem {
         inherit system;
-        specialArgs = { inherit inputs hostname; };
+        specialArgs = {
+          inherit inputs hostname;
+          isIntel = builtins.elem hostname intelHosts;
+          isRamTight = builtins.elem hostname ramTightHosts;
+        };
         modules = [
           # Host-specific hardware
           ./hosts/${hostname}/hardware-configuration.nix
@@ -93,6 +104,7 @@
         bear = mkHost "bear";
         slime = mkHost "slime";
         thunder = mkHost "thunder";
+        owl = mkHost "owl";
       };
     };
 }

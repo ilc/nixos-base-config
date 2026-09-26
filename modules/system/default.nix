@@ -1,5 +1,5 @@
 # System modules entry point
-{ config, pkgs, lib, hostname, ... }:
+{ config, pkgs, lib, hostname, isIntel, isRamTight, ... }:
 
 {
   imports = [
@@ -18,16 +18,15 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nix.settings.auto-optimise-store = true;
 
-  # thunder is RAM-tight for builds (Intel 155H, 16C/22T, 32GB but often only
-  # ~16GB free under JetBrains + agents) and nixos-rebuild OOM'd it: nix's
-  # default max-jobs=auto fires a dozen parallel compiles into contended RAM.
-  # Cap parallelism there and add a zram safety net so a rebuild can't take the
-  # box down. slime/bear are unconstrained. Override higher on the CLI when the
-  # box is idle (e.g. `--max-jobs 4 --cores 12`), or offload with `--build-host
-  # slime`.
-  nix.settings.max-jobs = lib.mkIf (hostname == "thunder") 1;  # one derivation at a time — no parallel heavy compiles
-  nix.settings.cores = lib.mkIf (hostname == "thunder") 4;     # threads within a build; bounds a single big compile/link
-  zramSwap.enable = lib.mkIf (hostname == "thunder") true;     # ~50% of RAM as compressed swap — OOM headroom under load
+  # RAM-tight build boxes (isRamTight = thunder 32GB / owl 16GB) OOM under nix's
+  # default max-jobs=auto, which fires a dozen parallel compiles into contended
+  # RAM (thunder's nixos-rebuild OOM'd; owl at 16GB is tighter still). Cap
+  # parallelism and add a zram safety net so a rebuild can't take the box down.
+  # slime/bear/kraken are unconstrained. Override higher on the CLI when idle
+  # (e.g. `--max-jobs 4 --cores 12`), or offload with `--build-host slime`.
+  nix.settings.max-jobs = lib.mkIf isRamTight 1;  # one derivation at a time — no parallel heavy compiles
+  nix.settings.cores = lib.mkIf isRamTight 4;     # threads within a build; bounds a single big compile/link
+  zramSwap.enable = lib.mkIf isRamTight true;     # ~50% of RAM as compressed swap — OOM headroom under load
   nix.gc = {
     automatic = true;
     dates = "weekly";
@@ -54,7 +53,7 @@
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
-    extraPackages = lib.optionals (hostname == "thunder" || hostname == "bear")
+    extraPackages = lib.optionals isIntel
       (with pkgs; [
         intel-media-driver     # iHD; Gen9+ incl. Meteor Lake
         vpl-gpu-rt             # Intel oneVPL runtime (AV1/HEVC on Xe/Arc)
@@ -63,8 +62,7 @@
   };
 
   # Point libva at iHD explicitly on Intel hosts.
-  environment.sessionVariables.LIBVA_DRIVER_NAME = lib.mkIf
-    (hostname == "thunder" || hostname == "bear") "iHD";
+  environment.sessionVariables.LIBVA_DRIVER_NAME = lib.mkIf isIntel "iHD";
 
   # Boot configuration (common to all hosts)
   boot = {

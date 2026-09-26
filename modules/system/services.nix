@@ -1,5 +1,5 @@
 # System services configuration
-{ config, pkgs, lib, hostname, ... }:
+{ config, pkgs, lib, hostname, isIntel, ... }:
 
 {
   services = {
@@ -41,8 +41,8 @@
       package = pkgs.plocate;
     };
 
-    # Intel thermal management (Intel laptops only)
-    thermald.enable = (hostname == "thunder" || hostname == "bear");
+    # Intel thermal management (Intel hosts only)
+    thermald.enable = isIntel;
 
     # Power management
     power-profiles-daemon.enable = true;
