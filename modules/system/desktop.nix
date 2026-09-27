@@ -15,6 +15,11 @@
   # toggle was removed upstream.
   services.displayManager.gdm.enable = true;
 
+  # Preselect sway at login. With GDM, NixOS re-applies this every time the
+  # display manager starts (it ignores session history), so choosing niri at
+  # the login screen lasts for that login only.
+  services.displayManager.defaultSession = "sway";
+
   # Sway
   programs.sway = {
     enable = true;
