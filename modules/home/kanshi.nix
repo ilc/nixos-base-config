@@ -66,9 +66,12 @@
         };
       }
 
-      # Laptop alone (eDP-1 only). Scale is per-host:
-      #   thunder = 2.0 (Samsung 3200x2000 panel)
-      #   bear    = 1.75
+      # Laptop alone (eDP-1 only). Scale is per-host, targeting ~130-152
+      # effective PPI (panel PPI / scale):
+      #   thunder = 2.0   (Samsung 3200x2000 14.5", ~130)
+      #   bear    = 1.75  (Framework 2880x1920 13.5", ~146)
+      #   owl     = 2.1333 (256/120; 3840x2160 14", ~148; 1800 wide — 3 terminals ~80 cols)
+      #   kraken  = 1.6    (192/120; 2880x1800 14", ~152; 1800x1125 — same width as owl)
       {
         profile = {
           name = "laptop";
@@ -76,7 +79,11 @@
             {
               criteria = "eDP-1";
               status = "enable";
-              scale = if hostname == "thunder" then 2.0 else 1.75;
+              scale = {
+                thunder = 2.0;
+                owl = 2.133333;
+                kraken = 1.6;
+              }.${hostname} or 1.75;
             }
           ];
         };
