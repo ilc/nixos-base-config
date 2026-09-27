@@ -11,9 +11,10 @@
   # Kernel — latest, like the rest of the fleet (Strix Halo is fully mainlined there)
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  # i2c_hid_acpi + pinctrl_amd: in case the built-in keyboard is i2c-HID rather
+  # i2c_hid_acpi: in case the built-in keyboard is i2c-HID rather
   # than PS/2 — the LUKS passphrase is typed in the initrd, so it must work there.
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "uas" "sd_mod" "i2c_hid_acpi" "pinctrl_amd" ];
+  # (pinctrl_amd, which it needs, is built into the kernel — not a module.)
+  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "uas" "sd_mod" "i2c_hid_acpi" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
