@@ -105,6 +105,7 @@
         slime = mkHost "slime";
         thunder = mkHost "thunder";
         owl = mkHost "owl";
+        kraken = mkHost "kraken";
       };
     };
 }

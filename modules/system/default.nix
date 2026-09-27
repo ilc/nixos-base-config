@@ -101,7 +101,7 @@
     networkmanager.enable = true;
     enableIPv6 = false;
     firewall.enable = true;
-    firewall.allowedTCPPorts = lib.optionals (hostname != "thunder") [ 5174 ];
+    firewall.allowedTCPPorts = lib.optionals (!builtins.elem hostname [ "thunder" "kraken" ]) [ 5174 ];
     interfaces.lo.ipv4.addresses = [
       { address = "172.17.0.1"; prefixLength = 32; }
     ];
