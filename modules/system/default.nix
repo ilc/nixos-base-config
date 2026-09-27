@@ -129,6 +129,7 @@
 
       # Hardware diagnostics
       pciutils      # lspci
+      usbutils      # lsusb
       lshw          # lshw
       lsscsi        # lsscsi
       hwloc         # lstopo (CPU/memory topology)
