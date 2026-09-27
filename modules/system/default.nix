@@ -1,5 +1,5 @@
 # System modules entry point
-{ config, pkgs, lib, hostname, isIntel, isRamTight, ... }:
+{ config, pkgs, lib, hostname, isIntel, isRamTight, isLaptop, ... }:
 
 {
   imports = [
@@ -110,6 +110,24 @@
     interfaces.lo.ipv4.addresses = [
       { address = "172.17.0.1"; prefixLength = 32; }
     ];
+
+    # Laptops: Wi-Fi off while any Ethernet is connected, back on when none is.
+    # Docked on the wired LAN with Wi-Fi also up, replies to Wi-Fi-subnet peers
+    # leave via Wi-Fi while requests arrive on the wire — an asymmetric route the
+    # router's state tracking drops (it killed a thunder→kraken rsync). Matches
+    # on device TYPE so any dock's NIC counts, whatever it is named.
+    networkmanager.dispatcherScripts = lib.optionals isLaptop [{
+      type = "basic";
+      source = pkgs.writeText "wifi-off-when-wired" ''
+        case "$2" in up|down) ;; *) exit 0 ;; esac
+        nmcli=${pkgs.networkmanager}/bin/nmcli
+        if $nmcli -t -f TYPE,STATE device | grep -q '^ethernet:connected'; then
+          $nmcli radio wifi off
+        else
+          $nmcli radio wifi on
+        fi
+      '';
+    }];
   };
 
   # User configuration

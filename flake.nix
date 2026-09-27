@@ -66,6 +66,7 @@
       # neither. Add a new host to the relevant list(s) here — nowhere else.
       intelHosts = [ "thunder" "bear" "owl" ];
       ramTightHosts = [ "thunder" "owl" ];
+      laptopHosts = [ "thunder" "bear" "owl" "kraken" ];
 
       # Helper function to create a NixOS configuration for a host
       mkHost = hostname: nixpkgs.lib.nixosSystem {
@@ -74,6 +75,7 @@
           inherit inputs hostname;
           isIntel = builtins.elem hostname intelHosts;
           isRamTight = builtins.elem hostname ramTightHosts;
+          isLaptop = builtins.elem hostname laptopHosts;
         };
         modules = [
           # Host-specific hardware
