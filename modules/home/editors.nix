@@ -7,6 +7,10 @@
     enable = true;
     viAlias = true;
     vimAlias = true;
+    # No Python/Ruby remote plugins in use (config is treesitter only) — take
+    # the new home-manager default and drop both providers from the closure.
+    withPython3 = false;
+    withRuby = false;
     plugins = with pkgs.vimPlugins; [
       nvim-treesitter
       nvim-treesitter.withAllGrammars

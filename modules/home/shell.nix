@@ -223,7 +223,7 @@
   programs.fzf = {
     enable = true;
     enableBashIntegration = true;
-    historyWidgetOptions = [
+    historyWidget.options = [
       "--height=80%"
       "--border=rounded"
       "--info=inline"

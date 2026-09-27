@@ -195,7 +195,7 @@ in
     # GUI Apps
     keepassxc
     obs-studio
-    libreoffice-fresh
+    libreoffice
 
     # Spellcheck
     hunspell

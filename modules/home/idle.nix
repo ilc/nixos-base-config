@@ -20,7 +20,7 @@ in
 {
   services.swayidle = {
     enable = true;
-    systemdTarget = "graphical-session.target";
+    systemdTargets = [ "graphical-session.target" ];
 
     timeouts = [
       # Disable displays after 5 minutes idle. Using disable (not power off)
@@ -34,12 +34,9 @@ in
       }
     ];
 
-    events = [
+    events = {
       # Re-enable displays on resume from suspend
-      {
-        event = "after-resume";
-        command = "${wake-displays}";
-      }
-    ];
+      after-resume = "${wake-displays}";
+    };
   };
 }

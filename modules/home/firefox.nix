@@ -5,6 +5,9 @@
   programs.firefox = {
     enable = true;
     package = pkgs.firefox-bin;
+    # Keep the profile where it is (home-manager's new default moves it under
+    # XDG config; a move would strand existing profiles).
+    configPath = ".mozilla/firefox";
 
     profiles.default = {
       id = 0;
