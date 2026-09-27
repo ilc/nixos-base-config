@@ -74,6 +74,11 @@
     # Video/audio loopback for OBS etc
     extraModulePackages = with config.boot.kernelPackages; [ v4l2loopback.out ];
     kernelModules = [ "v4l2loopback" "snd-aloop" "dummy" ];
+    # Load the AES-NI/VAES ciphers before LUKS opens. NixOS's default initrd
+    # crypto list lacks aesni_intel (AMD uses it too), so dm-crypt binds the
+    # generic xts(ecb(aes-lib)) template for the life of the mapping — measured
+    # ~650 MB/s per stream on kraken vs 6.6 GB/s raw NVMe.
+    initrd.kernelModules = lib.optionals (config.boot.initrd.luks.devices != { }) [ "aesni_intel" ];
     extraModprobeConfig = ''
       options v4l2loopback exclusive_caps=1 card_label="Virtual Camera"
     '';
