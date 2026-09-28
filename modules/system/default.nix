@@ -9,6 +9,7 @@
     ./services.nix
     ./llama-server.nix
     ./claude-code.nix
+    ./secureboot.nix
   ];
 
   # Core system settings

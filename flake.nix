@@ -22,6 +22,12 @@
       url = "github:ggml-org/llama.cpp";
       flake = false;
     };
+
+    # Secure Boot with our own keys (signed UKIs; see modules/system/secureboot.nix).
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote/v1.2.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
@@ -67,6 +73,7 @@
       intelHosts = [ "thunder" "bear" "owl" ];
       ramTightHosts = [ "thunder" "owl" ];
       laptopHosts = [ "thunder" "bear" "owl" "kraken" ];
+      secureBootHosts = [ "kraken" ];
 
       # Helper function to create a NixOS configuration for a host
       mkHost = hostname: nixpkgs.lib.nixosSystem {
@@ -76,6 +83,7 @@
           isIntel = builtins.elem hostname intelHosts;
           isRamTight = builtins.elem hostname ramTightHosts;
           isLaptop = builtins.elem hostname laptopHosts;
+          isSecureBoot = builtins.elem hostname secureBootHosts;
         };
         modules = [
           # Host-specific hardware
