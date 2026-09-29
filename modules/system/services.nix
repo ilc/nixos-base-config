@@ -1,5 +1,5 @@
 # System services configuration
-{ config, pkgs, lib, hostname, isIntel, ... }:
+{ config, pkgs, lib, hostname, isIntel, isLaptop, ... }:
 
 {
   services = {
@@ -46,6 +46,17 @@
 
     # Power management
     power-profiles-daemon.enable = true;
+
+    # Laptops: shut down cleanly on a flat battery instead of running until the
+    # cells cut out mid-write. PowerOff, not Hibernate: kraken/thunder/owl have
+    # no swap, and no host sets a resume device.
+    upower = lib.mkIf isLaptop {
+      enable = true;
+      percentageLow = 15;
+      percentageCritical = 7;
+      percentageAction = 5;
+      criticalPowerAction = "PowerOff";
+    };
 
     # Tailscale mesh VPN. `tailscale up` (once, per host) does the auth.
     tailscale.enable = true;
