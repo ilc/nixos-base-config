@@ -27,6 +27,19 @@
     options = [ "subvol=@home" ];
   };
 
+  # Throwaway build trees: a separate subvolume so they stay out of @home's
+  # snapshots and backups.
+  fileSystems."/scratch" = {
+    device = "/dev/disk/by-uuid/89a5471f-348b-4d46-a90e-97c6508cd4ff";
+    fsType = "btrfs";
+    options = [ "subvol=@scratch" "noatime" "nofail" ];
+  };
+
+  systemd.tmpfiles.rules = [
+    "d /scratch 0755 root root -"
+    "d /scratch/ira 0700 ira users -"
+  ];
+
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/2F99-6DE7";
     fsType = "vfat";
