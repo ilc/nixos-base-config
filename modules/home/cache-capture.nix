@@ -25,6 +25,7 @@ let
     pkgs.util-linux
     pkgs.git
     pkgs.gawk
+    pkgs.gnused
     pkgs.hostname
   ];
 in
