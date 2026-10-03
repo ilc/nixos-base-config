@@ -38,6 +38,8 @@
   systemd.tmpfiles.rules = [
     "d /scratch 0755 root root -"
     "d /scratch/ira 0700 ira users -"
+    # Never backed up, whatever a backup's path list says.
+    "f /scratch/.nobackup 0644 root root -"
   ];
 
   fileSystems."/boot" = {
