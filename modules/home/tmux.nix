@@ -9,6 +9,11 @@
     historyLimit = 100000;
     keyMode = "vi";
     mouse = true;
+    # Keep the socket in /tmp/tmux-$UID (tmux enforces 0700 there). The secure
+    # socket moves it under $XDG_RUNTIME_DIR via TMUX_TMPDIR, which only login
+    # shells see, so non-login shells (e.g. `ssh host tmux attach`) looked in
+    # /tmp and found no server; the runtime dir also vanishes at last logout.
+    secureSocket = false;
 
     extraConfig = ''
       # OLED: keep status off by default; toggle with prefix + b
