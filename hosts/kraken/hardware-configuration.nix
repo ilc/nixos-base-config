@@ -50,6 +50,21 @@
     options = [ "subvol=@home" "noatime" ];
   };
 
+  # Throwaway build trees: a separate subvolume so they stay out of @home's
+  # snapshots and backups.
+  fileSystems."/scratch" = {
+    device = "/dev/mapper/cryptroot";
+    fsType = "btrfs";
+    options = [ "subvol=@scratch" "noatime" "nofail" ];
+  };
+
+  systemd.tmpfiles.rules = [
+    "d /scratch 0755 root root -"
+    "d /scratch/ira 0700 ira users -"
+    # Never backed up, whatever a backup's path list says.
+    "f /scratch/.nobackup 0644 root root -"
+  ];
+
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/A0FE-8DDC";
     fsType = "vfat";
