@@ -53,6 +53,7 @@
       # Prompt format - 2 lines
       add_newline = false;  # No blank line between prompts
       format = lib.concatStrings [
+        "\${custom.backup}"
         "$directory"
         "$git_branch"
         "$git_status"
@@ -72,6 +73,17 @@
         "$hostname"
         "$character"
       ];
+
+      # Backup alert — silent unless a backup unit failed or went stale
+      # (snapshots.nix and backup.nix write one line per problem). No desktop
+      # notifier and the bar is often hidden, so the prompt is the channel.
+      custom.backup = {
+        when = "test -n \"$(ls -A /var/lib/backup-status/alerts 2>/dev/null)\"";
+        command = "cat /var/lib/backup-status/alerts/* | head -1";
+        shell = [ "bash" "--noprofile" "--norc" ];
+        style = "bold red";
+        format = "[BACKUP: $output]($style)\n";
+      };
 
       # Character - traditional prompt
       character = {

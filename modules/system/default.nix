@@ -10,6 +10,7 @@
     ./llama-server.nix
     ./claude-code.nix
     ./secureboot.nix
+    ./snapshots.nix
   ];
 
   # Core system settings

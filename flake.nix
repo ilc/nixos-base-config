@@ -74,6 +74,7 @@
       ramTightHosts = [ "thunder" "owl" ];
       laptopHosts = [ "thunder" "bear" "owl" "kraken" ];
       secureBootHosts = [ "kraken" ];
+      snapshotHosts = [ "kraken" ];
 
       # Helper function to create a NixOS configuration for a host
       mkHost = hostname: nixpkgs.lib.nixosSystem {
@@ -84,6 +85,7 @@
           isRamTight = builtins.elem hostname ramTightHosts;
           isLaptop = builtins.elem hostname laptopHosts;
           isSecureBoot = builtins.elem hostname secureBootHosts;
+          isSnapshot = builtins.elem hostname snapshotHosts;
         };
         modules = [
           # Host-specific hardware
