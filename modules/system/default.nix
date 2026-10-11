@@ -11,6 +11,7 @@
     ./claude-code.nix
     ./secureboot.nix
     ./snapshots.nix
+    ./nats.nix
   ];
 
   # Core system settings

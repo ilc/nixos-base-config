@@ -66,6 +66,21 @@
         };
       };
 
+      # nats-server 2.15.1 (nixpkgs has 2.14.7): skips 2.15.0's issues, and every
+      # host builds it from this one lock, so all servers run the same version.
+      natsServerOverlay = final: prev: {
+        nats-server = prev.nats-server.overrideAttrs (finalAttrs: old: {
+          version = "2.15.1";
+          src = prev.fetchFromGitHub {
+            owner = "nats-io";
+            repo = "nats-server";
+            rev = "v${finalAttrs.version}";
+            hash = "sha256-VjCUNo8gbMCqHBslUHsJGn9lhb0hNoGMDlttVy0BmYw=";
+          };
+          vendorHash = "sha256-4HUEDsjHfOUcrenjZ4r1TdpI7VKYxIuLrsTKw0419gU=";
+        });
+      };
+
       # Host classes — single source of truth (consumed via specialArgs below).
       # Intel hosts get iHD/VAAPI drivers + thermald; RAM-tight build boxes
       # (16-32GB) get the compile throttle. AMD/big hosts (slime, kraken) are in
@@ -75,6 +90,7 @@
       laptopHosts = [ "thunder" "bear" "owl" "kraken" ];
       secureBootHosts = [ "kraken" ];
       snapshotHosts = [ "kraken" ];
+      natsHosts = [ "slime" ];
 
       # Helper function to create a NixOS configuration for a host
       mkHost = hostname: nixpkgs.lib.nixosSystem {
@@ -86,6 +102,7 @@
           isLaptop = builtins.elem hostname laptopHosts;
           isSecureBoot = builtins.elem hostname secureBootHosts;
           isSnapshot = builtins.elem hostname snapshotHosts;
+          isNats = builtins.elem hostname natsHosts;
         };
         modules = [
           # Host-specific hardware
@@ -95,7 +112,7 @@
           ./modules/system
 
           # Overlays
-          { nixpkgs.overlays = [ dfuProgrammerOverlay inputs.claude-code-nix.overlays.default ]; }
+          { nixpkgs.overlays = [ dfuProgrammerOverlay natsServerOverlay inputs.claude-code-nix.overlays.default ]; }
 
           # Home-manager integration
           home-manager.nixosModules.home-manager
