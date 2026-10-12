@@ -89,7 +89,9 @@ in {
     systemd.services.llama-server = {
       description = "llama.cpp server (slime model registry)";
       after = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
+      # Not started at boot: an idle model still pins its weights in GTT, which
+      # comes out of system RAM. Start it when needed:
+      # `systemctl start llama-server`.
 
       environment = {
         AMD_VULKAN_ICD = "RADV";
