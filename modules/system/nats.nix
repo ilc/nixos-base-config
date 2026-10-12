@@ -79,6 +79,11 @@ let
     server_name: ${hostname}
     listen: "127.0.0.1:4222"
     max_payload: 1048576
+    # A connection on an address that vanished (a laptop switching from wifi
+    # to wired) is only noticed when pings go unanswered; 20s x 2 bounds that
+    # to about a minute instead of the default ~6.
+    ping_interval: "20s"
+    ping_max: 2
 
     jetstream {
       store_dir: "${dataDir}/jetstream"
@@ -150,6 +155,17 @@ in
 
     networking.firewall.interfaces = lib.mkIf isHub (lib.genAttrs hub.interfaces
       (_: { allowedTCPPorts = [ leafPort ]; }));
+
+    # Spokes: drop the leaf connection whenever an interface comes up or goes
+    # down, so nats redials at once over whatever link is current instead of
+    # waiting for pings on a socket bound to an address that no longer exists.
+    networking.networkmanager.dispatcherScripts = lib.mkIf (!isHub) [{
+      type = "basic";
+      source = pkgs.writeText "nats-leaf-reset" ''
+        case "$2" in up|down) ;; *) exit 0 ;; esac
+        ${pkgs.iproute2}/bin/ss -K state established '( dport = :${toString leafPort} )' >/dev/null 2>&1 || true
+      '';
+    }];
 
     systemd.services.nats = {
       description = "NATS server (JetStream)";
