@@ -1,8 +1,8 @@
 # Claude Code — organization-managed policy (box-wide, all users).
 #
-# This managed-settings.json carries three things: the cross-session peer-tool
-# deny (below), the telemetry env, and the channel-notifications opt-in (both at
-# the builder near the bottom). All are declarative + root-owned so they cannot
+# This managed-settings.json carries four things: the cross-session peer-tool
+# deny (below), the telemetry env, the channel-notifications opt-in and the
+# commit/PR attribution switch-off (all at the builder near the bottom). All are declarative + root-owned so they cannot
 # be weakened by a dotfile, and ride to every host in this flake.
 #
 # Denies the cross-session peer tools ListAgents and SendMessage. As of
@@ -70,5 +70,15 @@
     # work moving to Team. (That same team/enterprise branch also stops CC
     # sending head_sha at all — the good half.)
     channelsEnabled = true;
+
+    # No attribution in commits or PRs: no Co-Authored-By trailer, no
+    # "Generated with" line, and no Claude-Session trailer, which would publish
+    # a session URL in every pushed commit. Object form: some CC versions reject
+    # a boolean here and then skip the whole file.
+    attribution = {
+      commit = "";
+      pr = "";
+      sessionUrl = false;
+    };
   };
 }
