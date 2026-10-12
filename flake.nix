@@ -90,7 +90,7 @@
       laptopHosts = [ "thunder" "bear" "owl" "kraken" ];
       secureBootHosts = [ "kraken" ];
       snapshotHosts = [ "kraken" ];
-      natsHosts = [ "slime" ];
+      natsHosts = [ "slime" "kraken" ];
 
       # Helper function to create a NixOS configuration for a host
       mkHost = hostname: nixpkgs.lib.nixosSystem {
