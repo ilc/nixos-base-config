@@ -62,10 +62,17 @@
     tailscale.enable = true;
   };
 
-  # Udev rules: keyboards (Via, Vial)
+  # Udev rules: keyboards (Via, Vial), plus a lock on security keys. via's
+  # packaged rule makes every hidraw node 0666; YubiKeys are pinned back to
+  # owner-only with an ACL for the active console user (uaccess), and := stops
+  # that later rule from widening them. Sorts before 73-seat-late, which
+  # applies uaccess.
   services.udev.packages = with pkgs; [
     vial
     via
+    (writeTextDir "lib/udev/rules.d/70-yubikey-lock.rules" ''
+      SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1050", MODE:="0600", TAG+="uaccess"
+    '')
   ];
 
   # Calibrite Display Pro HL / X-Rite i1 Display Pro (USB 0765:5020).
