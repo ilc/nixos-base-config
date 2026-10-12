@@ -13,3 +13,6 @@ result-*
 # Secrets (if any)
 secrets/
 *.secret
+
+# Local launcher for this workspace (not part of the config)
+/claude-comms
