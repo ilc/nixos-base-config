@@ -64,14 +64,15 @@
 
   # Udev rules: keyboards (Via, Vial), plus a lock on security keys. via's
   # packaged rule makes every hidraw node 0666; YubiKeys are pinned back to
-  # owner-only with an ACL for the active console user (uaccess), and := stops
-  # that later rule from widening them. Sorts before 73-seat-late, which
+  # root-owned, no "other" access, with an ACL for the active console user
+  # (uaccess); := stops that later rule from widening them. 0660, not 0600:
+  # the group bits are the ACL mask, and 0600 would void the user's ACL. Sorts before 73-seat-late, which
   # applies uaccess.
   services.udev.packages = with pkgs; [
     vial
     via
     (writeTextDir "lib/udev/rules.d/70-yubikey-lock.rules" ''
-      SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1050", MODE:="0600", TAG+="uaccess"
+      SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1050", GROUP:="root", MODE:="0660", TAG+="uaccess"
     '')
   ];
 
