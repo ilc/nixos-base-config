@@ -148,6 +148,7 @@
       vim
       neovim
       git
+      yubikey-manager  # ykman; OATH/PIV go through pcscd (services.nix)
       man-pages
       man-pages-posix
       pcscliteWithPolkit.out
