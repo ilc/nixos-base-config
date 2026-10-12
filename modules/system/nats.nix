@@ -156,12 +156,15 @@ in
     networking.firewall.interfaces = lib.mkIf isHub (lib.genAttrs hub.interfaces
       (_: { allowedTCPPorts = [ leafPort ]; }));
 
-    # Spokes: drop the leaf connection whenever an interface comes up or goes
-    # down, so nats redials at once over whatever link is current instead of
+    # Spokes: drop the leaf connection whenever a physical interface comes up
+    # or goes down, so nats redials at once over whatever link is current instead of
     # waiting for pings on a socket bound to an address that no longer exists.
     networking.networkmanager.dispatcherScripts = lib.mkIf (!isHub) [{
       type = "basic";
       source = pkgs.writeText "nats-leaf-reset" ''
+        # Physical links only (allow-list): container veths and bridges come
+        # and go with every podman run and must not bounce the leaf.
+        case "$1" in eth*|en*|wl*) ;; *) exit 0 ;; esac
         case "$2" in up|down) ;; *) exit 0 ;; esac
         ${pkgs.iproute2}/bin/ss -K state established '( dport = :${toString leafPort} )' >/dev/null 2>&1 || true
       '';
