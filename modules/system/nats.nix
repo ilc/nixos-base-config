@@ -28,18 +28,24 @@
 # including file, so absolute include paths don't work.
 #
 # Ports: clients on 127.0.0.1:4222 only. The hub's leaf port (7422, TLS with a
-# self-signed certificate made on first start) is open on the LAN interface
-# only. Spokes pin that certificate (copy /var/lib/nats/tls/leaf.crt from the
+# self-signed certificate, remade when its names change) is open on the LAN
+# and tailnet interfaces only; spokes listen on nothing. Spokes pin that certificate (copy /var/lib/nats/tls/leaf.crt from the
 # hub into hosts/<spoke>/nats-hub-leaf.crt).
 { config, lib, pkgs, hostname, isNats, ... }:
 
 let
+  # Spokes dial the LAN address at home and the tailnet address away; the
+  # certificate covers both, and the leaf port is open on both interfaces.
   hub = {
     host = "slime";
-    address = "192.168.14.27";
-    lanInterface = "enp191s0";
+    lanAddress = "192.168.14.27";
+    tailnetAddress = "100.68.59.89";
+    interfaces = [ "enp191s0" "tailscale0" ];
     names = [ "slime" "slime.wakeful.net" ];
   };
+  hubSans = lib.concatStringsSep "," (
+    map (n: "DNS:${n}") hub.names
+    ++ map (a: "IP:${a}") [ hub.lanAddress hub.tailnetAddress ]);
   isHub = hostname == hub.host;
 
   leafPort = 7422;
@@ -110,15 +116,19 @@ let
 
   leafTls = pkgs.writeShellScript "nats-leaf-tls" ''
     set -euo pipefail
-    [ -e ${tlsDir}/leaf.crt ] && exit 0
+    # Made once, and again only when the names it must cover change.
+    if [ -e ${tlsDir}/leaf.crt ] && [ "$(cat ${tlsDir}/leaf.sans 2>/dev/null)" = "${hubSans}" ]; then
+      exit 0
+    fi
     install -d -m 0700 -o nats -g nats ${tlsDir}
     ${pkgs.openssl}/bin/openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:P-256 \
       -nodes -days 3650 -subj "/CN=${hub.host}" \
-      -addext "subjectAltName=${lib.concatMapStringsSep "," (n: "DNS:${n}") hub.names},IP:${hub.address}" \
+      -addext "subjectAltName=${hubSans}" \
       -keyout ${tlsDir}/leaf.key -out ${tlsDir}/leaf.crt 2>/dev/null
     chown nats:nats ${tlsDir}/leaf.key ${tlsDir}/leaf.crt
     chmod 0600 ${tlsDir}/leaf.key
     chmod 0644 ${tlsDir}/leaf.crt
+    echo "${hubSans}" > ${tlsDir}/leaf.sans
   '';
 in
 {
@@ -138,9 +148,8 @@ in
 
     environment.systemPackages = [ pkgs.nats-server pkgs.natscli ];
 
-    networking.firewall.interfaces = lib.mkIf isHub {
-      ${hub.lanInterface}.allowedTCPPorts = [ leafPort ];
-    };
+    networking.firewall.interfaces = lib.mkIf isHub (lib.genAttrs hub.interfaces
+      (_: { allowedTCPPorts = [ leafPort ]; }));
 
     systemd.services.nats = {
       description = "NATS server (JetStream)";
