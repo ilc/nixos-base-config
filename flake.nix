@@ -89,7 +89,7 @@
       ramTightHosts = [ "thunder" "owl" ];
       laptopHosts = [ "thunder" "bear" "owl" "kraken" ];
       secureBootHosts = [ "kraken" ];
-      snapshotHosts = [ "kraken" ];
+      snapshotHosts = [ "kraken" "slime" ];
       natsHosts = [ "slime" "kraken" ];
 
       # Helper function to create a NixOS configuration for a host
