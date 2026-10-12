@@ -1,8 +1,9 @@
 # Claude Code — organization-managed policy (box-wide, all users).
 #
-# This managed-settings.json carries four things: the cross-session peer-tool
-# deny (below), the telemetry env, the channel-notifications opt-in and the
-# commit/PR attribution switch-off (all at the builder near the bottom). All are declarative + root-owned so they cannot
+# This managed-settings.json carries five things: the cross-session peer-tool
+# deny (below), the telemetry env, the channel-notifications opt-in, the
+# transcript retention period and the commit/PR attribution switch-off (all at
+# the builder near the bottom). All are declarative + root-owned so they cannot
 # be weakened by a dotfile, and ride to every host in this flake.
 #
 # Denies the cross-session peer tools ListAgents and SendMessage. As of
@@ -70,6 +71,15 @@
     # work moving to Team. (That same team/enterprise branch also stops CC
     # sending head_sha at all — the good half.)
     channelsEnabled = true;
+
+    # Keep session transcripts ~10 years: they are each session's memory and
+    # the record ccusage tallies cost from, and deletion is irreversible. 3650
+    # is CC's own "long retention" example; 0 is invalid (minimum 1).
+    # LOWERING THIS DELETES: at the next CC start, every transcript older than
+    # the new value is removed, on every host this file reaches. Archive
+    # ~/.claude/projects first, then lower. The same age also governs CC's
+    # other sweeps (file-history, plans, paste-cache, tool-results).
+    cleanupPeriodDays = 3650;
 
     # No attribution in commits or PRs: no Co-Authored-By trailer, no
     # "Generated with" line, and no Claude-Session trailer, which would publish
