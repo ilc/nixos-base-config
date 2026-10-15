@@ -29,10 +29,17 @@
 
   # Throwaway build trees: a separate subvolume so they stay out of @home's
   # snapshots and backups.
+  #
+  # user_subvol_rm_allowed lets ira delete a build-tree subvolume without root
+  # (instant, instead of rm -rf). btrfs applies it to the whole filesystem, not
+  # this mount: an unprivileged delete still needs write access to the
+  # subvolume's parent directory, and every system subvolume and snapshot sits
+  # under a root-owned one, so in practice only subvolumes under
+  # /scratch/<user>-owned directories are deletable this way.
   fileSystems."/scratch" = {
     device = "/dev/disk/by-uuid/89a5471f-348b-4d46-a90e-97c6508cd4ff";
     fsType = "btrfs";
-    options = [ "subvol=@scratch" "noatime" "nofail" ];
+    options = [ "subvol=@scratch" "noatime" "nofail" "user_subvol_rm_allowed" ];
   };
 
   systemd.tmpfiles.rules = [
