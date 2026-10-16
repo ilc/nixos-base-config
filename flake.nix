@@ -90,6 +90,7 @@
       laptopHosts = [ "thunder" "bear" "owl" "kraken" ];
       secureBootHosts = [ "kraken" ];
       snapshotHosts = [ "kraken" "slime" ];
+      homeBackupHosts = [ "slime" ];  # kraken: parked
       natsHosts = [ "slime" "kraken" ];
 
       # Helper function to create a NixOS configuration for a host
@@ -102,6 +103,7 @@
           isLaptop = builtins.elem hostname laptopHosts;
           isSecureBoot = builtins.elem hostname secureBootHosts;
           isSnapshot = builtins.elem hostname snapshotHosts;
+          isHomeBackup = builtins.elem hostname homeBackupHosts;
           isNats = builtins.elem hostname natsHosts;
         };
         modules = [
