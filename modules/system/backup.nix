@@ -13,7 +13,7 @@
 # backs up one snapshot a day, read-only and frozen, mounted over /home in the
 # unit's namespace so restic sees stable /home paths. Weekly forget+prune and a
 # weekly partial data check follow. When each runs is per host (`targets`):
-#   slime   overnight, a fresh snapshot, uncapped (nobody is on a call)
+#   slime   06:00 daily, a fresh snapshot, uncapped (nobody is up yet)
 #
 # Target (S3 API): slime → Backblaze B2. Safety: the key can't destroy data:
 # the bucket keeps prior
@@ -37,9 +37,9 @@ let
       s3Options = [ ];
       uploadArgs = [ ];
       snapshot = "latest";
-      backupAt = "*-*-* 03:30";
-      pruneAt = "Wed 04:30";
-      checkAt = "Thu 04:30";
+      backupAt = "*-*-* 06:00";
+      pruneAt = "Wed 07:00";
+      checkAt = "Thu 07:00";
     };
   };
   target = targets.${hostname};
