@@ -149,6 +149,7 @@
       neovim
       git
       yubikey-manager  # ykman; OATH/PIV go through pcscd (services.nix)
+      btrfs-progs      # subvolume and snapshot tools on every host
       man-pages
       man-pages-posix
       pcscliteWithPolkit.out
