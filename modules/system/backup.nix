@@ -271,6 +271,8 @@ in
             -p CacheDirectory=restic-backups-home \
             ${resticHome} backup /home --pack-size=64 --host=${hostname} --tag=manual \
               --exclude-file=${excludeFile} --exclude-if-present=.nobackup --exclude-if-present=pyvenv.cfg --exclude-caches "$@"
+          # A dry run stores nothing, so it must not count as a backup.
+          case " $* " in *" --dry-run "*|*" -n "*) exit 0 ;; esac
           ${markOk "restic-backups-home"}
         '';
       })
