@@ -12,6 +12,7 @@
     ./secureboot.nix
     ./snapshots.nix
     ./backup.nix
+    ./alert-sources.nix
     ./nats.nix
   ];
 
