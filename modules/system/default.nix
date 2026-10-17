@@ -13,6 +13,7 @@
     ./snapshots.nix
     ./backup.nix
     ./alert-sources.nix
+    ./scratch-work.nix
     ./nats.nix
   ];
 
