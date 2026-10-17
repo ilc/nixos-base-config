@@ -56,7 +56,7 @@ let
   accountOwners = [ "agents" ];
 
   # JetStream ceiling per host; accounts' own limits fit under it.
-  maxFileStore = { slime = "12G"; kraken = "10G"; }.${hostname};
+  maxFileStore = { slime = "16G"; kraken = "10G"; }.${hostname};
 
   hubCert = ../../hosts/${hostname}/nats-hub-leaf.crt;
 
