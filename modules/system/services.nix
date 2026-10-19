@@ -87,10 +87,12 @@
   # re-enumeration (e.g. after a KVM USB switch gives the meter a new node).
   # ACTION=="add" ensures it fires on every (re)attach.
   #
-  # USB power checker (2e88:c2c2): group "users" can open it.
+  # USB power checker (2e88:c2c2), and the same device waiting for a firmware
+  # update (2e3c:5780): group "users" can open both.
   services.udev.extraRules = ''
     ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0765", ATTR{idProduct}=="5020", MODE="0660", TAG+="uaccess"
     SUBSYSTEM=="usb", ATTR{idVendor}=="2e88", ATTR{idProduct}=="c2c2", MODE="0660", GROUP="users"
+    SUBSYSTEM=="usb", ATTR{idVendor}=="2e3c", ATTR{idProduct}=="5780", MODE="0660", GROUP="users"
   '';
 
   # Flatpak support packages
