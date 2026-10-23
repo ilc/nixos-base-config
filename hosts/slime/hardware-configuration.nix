@@ -49,6 +49,19 @@
     "f /scratch/.nobackup 0644 root root -"
   ];
 
+  # Front USB ports: a built-in Genesys hub (USB2 half 3-2, USB3 half 4-2)
+  # with real per-port power switching. Group users may open it, so uhubctl
+  # can power-cycle a device for power-loss testing without root. Port power is
+  # shared by both halves, so a real cut means switching the port off on both.
+  # Matched by position as well as model, and only while it reports itself as
+  # built in: the same chip turns up in docks and monitors, and the back ports'
+  # hub (Realtek) carries the KVM, so neither must match. If the bus numbers
+  # ever move, the rule stops matching rather than spreading to another hub.
+  services.udev.extraRules = ''
+    SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", KERNEL=="3-2", ATTR{idVendor}=="05e3", ATTR{idProduct}=="0610", ATTR{removable}=="fixed", MODE="0660", GROUP="users"
+    SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", KERNEL=="4-2", ATTR{idVendor}=="05e3", ATTR{idProduct}=="0625", ATTR{removable}=="fixed", MODE="0660", GROUP="users"
+  '';
+
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/2F99-6DE7";
     fsType = "vfat";
