@@ -14,6 +14,7 @@
     ./backup.nix
     ./alert-sources.nix
     ./scratch-work.nix
+    ./pki-distrust.nix
     ./nats.nix
   ];
 
