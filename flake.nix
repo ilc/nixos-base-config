@@ -28,6 +28,12 @@
       url = "github:nix-community/lanzaboote/v1.2.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # The nixpkgs before the CVE-2026-98432 update, for packages that update
+    # left broken (see holdbackOverlay). Drop it once that list is empty.
+    # This nixpkgs is from 2026-10-10; held back since 2026-10-31. The older
+    # it gets, the more security fixes those packages miss.
+    nixpkgs-holdback.url = "github:NixOS/nixpkgs/6510408d147d8c5e6d76043e899e9251756f6a75";
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
@@ -81,6 +87,17 @@
         });
       };
 
+      # Packages taken from nixpkgs-holdback because the current nixpkgs marks
+      # them, or something they need, broken. Each entry is temporary: the
+      # packages are frozen at nixpkgs of 2026-10-10 (held since 2026-10-31).
+      #   azure-cli: needs python fabric, broken with invoke 3 (fabric #2376).
+      #   vagrant: needs libguestfs, broken while it is stuck on fuse2.
+      holdbackOverlay = final: prev:
+        let held = import inputs.nixpkgs-holdback { inherit system; inherit (prev) config; }; in {
+          azure-cli = held.azure-cli;
+          vagrant = held.vagrant;
+        };
+
       # Host classes — single source of truth (consumed via specialArgs below).
       # Intel hosts get iHD/VAAPI drivers + thermald; RAM-tight build boxes
       # (16-32GB) get the compile throttle. AMD/big hosts (slime, kraken) are in
@@ -114,7 +131,7 @@
           ./modules/system
 
           # Overlays
-          { nixpkgs.overlays = [ dfuProgrammerOverlay natsServerOverlay inputs.claude-code-nix.overlays.default ]; }
+          { nixpkgs.overlays = [ dfuProgrammerOverlay natsServerOverlay holdbackOverlay inputs.claude-code-nix.overlays.default ]; }
 
           # Home-manager integration
           home-manager.nixosModules.home-manager

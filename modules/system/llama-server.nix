@@ -43,6 +43,18 @@ let
     preConfigure = ''
       prependToVar cmakeFlags "-DLLAMA_BUILD_COMMIT:STRING=${inputs.llama-cpp-src.shortRev or "unknown"}"
     '';
+    # Tests of this pinned source that need a downloaded model, which the build
+    # sandbox cannot fetch. nixpkgs' own list is written for its own version.
+    # Skipping them also skips test-download-model, the fixture they all need.
+    disabledTests = (old.disabledTests or []) ++ [
+      "test-generate-models"
+      "test-recurrent-state-rollback"
+      "test-recurrent-state-rollback-nemotron-h"
+      "test-recurrent-state-rollback-dsv4"
+      "test-recurrent-state-rollback-kimi-k3"
+      "test-save-load-state"
+      "test-state-restore-fragmented"
+    ];
   });
 
   slime-model = pkgs.writers.writePython3Bin "slime-model" {

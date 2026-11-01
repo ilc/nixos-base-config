@@ -11,6 +11,8 @@
 #
 # Three trust stores need it, because three different things decide trust:
 #   1. The system bundle (/etc/ssl/certs): curl, git, nix, Python, Go, ...
+#      Done upstream: cacert 3.131.1 dropped these roots, and its build
+#      refuses to blacklist a root it no longer has, so nothing is set here.
 #   2. Node, which carries its own compiled-in root list and ignores the
 #      system bundle unless told otherwise. --use-openssl-ca makes it read the
 #      system bundle instead of its own.
@@ -30,12 +32,15 @@ let
   ];
 
   # Chromium's CADistrustedCertificates wants each certificate as base64 DER.
-  # Take them from the same Mozilla bundle the names refer to, and fail the
-  # build if any name is missing, so a renamed or already-removed root is
-  # noticed instead of silently skipped.
+  # The packaged bundle no longer carries these roots (cacert 3.131.1), so
+  # they are kept here, copied from the last Mozilla bundle that had them
+  # (nixpkgs cacert 3.126). Chromium 156's compiled-in store still trusts
+  # emSign ECC Root CA - G3; C1 and C3 were never in it. Fail the
+  # build if any name is missing from that file, so a list and file that drift
+  # apart are noticed instead of silently skipped.
   chromiumPolicy = pkgs.runCommand "chromium-ca-distrust.json"
     { nativeBuildInputs = [ pkgs.openssl pkgs.jq ]; } ''
-    bundle=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt
+    bundle=${./pki-distrust-roots.pem}
     certs=()
     for name in ${lib.escapeShellArgs distrusted}; do
       pem=$(awk -v n="$name" '$0 == n {f = 1; next} f && /BEGIN CERT/ {p = 1}
@@ -47,8 +52,6 @@ let
   '';
 in
 {
-  security.pki.caCertificateBlacklist = distrusted;
-
   environment.sessionVariables.NODE_OPTIONS = "--use-openssl-ca";
 
   environment.etc."chromium/policies/managed/ca-distrust.json".source = chromiumPolicy;
