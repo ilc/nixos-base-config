@@ -19,7 +19,7 @@
 
         mouse {}
 
-        warp-mouse-to-focus
+        warp-mouse-to-focus mode="center-xy-always"
         focus-follows-mouse max-scroll-amount="0%"
     }
 
