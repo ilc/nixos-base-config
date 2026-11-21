@@ -143,6 +143,9 @@
     shell = pkgs.bash;
     description = "Ira Cooper";
     extraGroups = [ "networkmanager" "wheel" "libvirtd" "input" "podman" "dialout" ];
+    # Keep the user's systemd manager running with no session open, so user
+    # services and timers survive a logout.
+    linger = true;
   };
 
   # System packages (minimal - most go in home-manager)

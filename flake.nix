@@ -81,6 +81,28 @@
         });
       };
 
+      # json-c 0.19 frees nested objects inside an assert() in json_object_put,
+      # so release builds (NDEBUG) never free them. sway leaks every IPC reply:
+      # about 41 KiB per get_tree, which waybar's workspace and window modules
+      # request on every event (kraken's sway reached 53 GB in 3 days). The fix
+      # is upstream json-c f291fa81, not yet released. Only the long-running
+      # desktop users get the patched copy, to avoid rebuilding everything that
+      # links json-c. Drop this once nixpkgs ships a json-c with the fix.
+      jsonCLeakOverlay = final: prev:
+        let
+          json_c = prev.json_c.overrideAttrs (old: {
+            patches = (old.patches or [ ]) ++ [
+              (prev.fetchpatch {
+                url = "https://github.com/json-c/json-c/commit/f291fa81c6f21d925ea771a8cca597f5886309cc.patch";
+                hash = "sha256-ZffSw1pfEfOH2ylRpJShdx7sTQR2nmPM/JIj/26UrDM=";
+              })
+            ];
+          });
+        in {
+          sway-unwrapped = prev.sway-unwrapped.override { inherit json_c; };
+          vali = prev.vali.override { inherit json_c; };
+        };
+
       # Host classes — single source of truth (consumed via specialArgs below).
       # Intel hosts get iHD/VAAPI drivers + thermald; RAM-tight build boxes
       # (16-32GB) get the compile throttle. AMD/big hosts (slime, kraken) are in
@@ -114,7 +136,7 @@
           ./modules/system
 
           # Overlays
-          { nixpkgs.overlays = [ dfuProgrammerOverlay natsServerOverlay inputs.claude-code-nix.overlays.default ]; }
+          { nixpkgs.overlays = [ dfuProgrammerOverlay natsServerOverlay jsonCLeakOverlay inputs.claude-code-nix.overlays.default ]; }
 
           # Home-manager integration
           home-manager.nixosModules.home-manager
